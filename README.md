@@ -324,7 +324,7 @@ open index.html
 ## Project Structure
 
 ```
-RubiksCube-VisualSolver/
+rubiks-cube-visual-solver/
 ├── index.html              # Standalone application (HTML + CSS + JS)
 └── README.md             # This document
 ```

@@ -1,970 +1,1626 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CubeSolver</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23667eea%22/><text x=%2250%22 y=%2268%22 text-anchor=%22middle%22 font-size=%2260%22 fill=%22white%22>&#9674;</text></svg>">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CubeSolver</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><rect x=%222%22 y=%222%22 width=%2220%22 height=%2220%22 rx=%224%22 fill=%22%23667eea%22/><rect x=%224%22 y=%224%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%23fff%22/><rect x=%2210%22 y=%224%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%23FF2040%22/><rect x=%2216%22 y=%224%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%233080FF%22/><rect x=%224%22 y=%2210%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%23FF8020%22/><rect x=%2210%22 y=%2210%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%2300E060%22/><rect x=%2216%22 y=%2210%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%23FFE000%22/><rect x=%224%22 y=%2216%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%233080FF%22/><rect x=%2210%22 y=%2216%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%23FFE000%22/><rect x=%2216%22 y=%2216%22 width=%225%22 height=%225%22 rx=%221%22 fill=%22%2300E060%22/></svg>"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-    :root {
-      --bg: #0a0a0a;
-      --text: #ffffff;
-      --glass: rgba(24,24,30,.72);
-      --glass-border: rgba(255,255,255,.08);
-      --label: rgba(255,255,255,.2);
-      --muted: rgba(255,255,255,.45);
-      --dim: rgba(255,255,255,.3);
-      --btn-glass: rgba(255,255,255,.06);
-      --btn-glass-hover: rgba(255,255,255,.11);
-      --btn-border: rgba(255,255,255,.05);
-      --btn-text: rgba(255,255,255,.5);
-      --btn-text-hover: rgba(255,255,255,.8);
-      --fb-glass: rgba(255,255,255,.035);
-      --fb-glass-hover: rgba(255,255,255,.08);
-      --fb-border: rgba(255,255,255,.035);
-      --fb-text: rgba(255,255,255,.28);
-      --fb-text-hover: rgba(255,255,255,.5);
-      --track: rgba(255,255,255,.05);
-      --nt-glass: rgba(255,255,255,.035);
-      --nt-text: rgba(255,255,255,.22);
-      --nt-live-glass: rgba(102,126,234,.1);
-      --nt-live-text: rgba(102,126,234,.65);
-      --select-bg: rgba(255,255,255,.04);
-      --select-border: rgba(255,255,255,.05);
-      --select-text: rgba(255,255,255,.45);
-      --slider-bg: rgba(255,255,255,.07);
-      --scramble-clr: rgba(255,255,255,.2);
-      --solve-clr: rgba(255,255,255,.55);
-      --scene: #121214;
-      --logo-clr: rgba(255,255,255,.55);
-      --divider: rgba(255,255,255,.04);
-      --accent: #667eea;
-      --accent-glow: rgba(102,126,234,.25);
-    }
+            :root {
+                --bg: #0a0a0a;
+                --text: #ffffff;
+                --glass: rgba(24, 24, 30, 0.72);
+                --glass-border: rgba(255, 255, 255, 0.08);
+                --label: rgba(255, 255, 255, 0.2);
+                --muted: rgba(255, 255, 255, 0.45);
+                --dim: rgba(255, 255, 255, 0.3);
+                --btn-glass: rgba(255, 255, 255, 0.06);
+                --btn-glass-hover: rgba(255, 255, 255, 0.11);
+                --btn-border: rgba(255, 255, 255, 0.05);
+                --btn-text: rgba(255, 255, 255, 0.5);
+                --btn-text-hover: rgba(255, 255, 255, 0.8);
+                --fb-glass: rgba(255, 255, 255, 0.035);
+                --fb-glass-hover: rgba(255, 255, 255, 0.08);
+                --fb-border: rgba(255, 255, 255, 0.035);
+                --fb-text: rgba(255, 255, 255, 0.28);
+                --fb-text-hover: rgba(255, 255, 255, 0.5);
+                --track: rgba(255, 255, 255, 0.05);
+                --nt-glass: rgba(255, 255, 255, 0.035);
+                --nt-text: rgba(255, 255, 255, 0.22);
+                --nt-live-glass: rgba(102, 126, 234, 0.1);
+                --nt-live-text: rgba(102, 126, 234, 0.65);
+                --select-bg: rgba(255, 255, 255, 0.04);
+                --select-border: rgba(255, 255, 255, 0.05);
+                --select-text: rgba(255, 255, 255, 0.45);
+                --slider-bg: rgba(255, 255, 255, 0.07);
+                --scramble-clr: rgba(255, 255, 255, 0.2);
+                --solve-clr: rgba(255, 255, 255, 0.55);
+                --scene: #121214;
+                --logo-clr: rgba(255, 255, 255, 0.55);
+                --divider: rgba(255, 255, 255, 0.04);
+                --accent: #667eea;
+                --accent-glow: rgba(102, 126, 234, 0.25);
+                --thumb-bg: #3a3a3e;
+                --thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            }
 
-    body.light {
-      --bg: #f5f5f7;
-      --text: #1d1d1f;
-      --glass: rgba(255,255,255,.78);
-      --glass-border: rgba(0,0,0,.07);
-      --label: rgba(0,0,0,.25);
-      --muted: rgba(0,0,0,.45);
-      --dim: rgba(0,0,0,.35);
-      --btn-glass: rgba(0,0,0,.04);
-      --btn-glass-hover: rgba(0,0,0,.08);
-      --btn-border: rgba(0,0,0,.05);
-      --btn-text: rgba(0,0,0,.45);
-      --btn-text-hover: rgba(0,0,0,.7);
-      --fb-glass: rgba(0,0,0,.035);
-      --fb-glass-hover: rgba(0,0,0,.07);
-      --fb-border: rgba(0,0,0,.045);
-      --fb-text: rgba(0,0,0,.28);
-      --fb-text-hover: rgba(0,0,0,.5);
-      --track: rgba(0,0,0,.05);
-      --nt-glass: rgba(0,0,0,.035);
-      --nt-text: rgba(0,0,0,.25);
-      --nt-live-glass: rgba(102,126,234,.1);
-      --nt-live-text: rgba(102,126,234,.65);
-      --select-bg: rgba(0,0,0,.035);
-      --select-border: rgba(0,0,0,.07);
-      --select-text: rgba(0,0,0,.45);
-      --slider-bg: rgba(0,0,0,.07);
-      --scramble-clr: rgba(0,0,0,.28);
-      --solve-clr: rgba(0,0,0,.5);
-      --scene: #e8e8ea;
-      --logo-clr: rgba(0,0,0,.55);
-      --divider: rgba(0,0,0,.04);
-    }
+            body.light {
+                --bg: #f5f5f7;
+                --text: #1d1d1f;
+                --glass: rgba(255, 255, 255, 0.78);
+                --glass-border: rgba(0, 0, 0, 0.07);
+                --label: rgba(0, 0, 0, 0.25);
+                --muted: rgba(0, 0, 0, 0.45);
+                --dim: rgba(0, 0, 0, 0.35);
+                --btn-glass: rgba(0, 0, 0, 0.04);
+                --btn-glass-hover: rgba(0, 0, 0, 0.08);
+                --btn-border: rgba(0, 0, 0, 0.05);
+                --btn-text: rgba(0, 0, 0, 0.45);
+                --btn-text-hover: rgba(0, 0, 0, 0.7);
+                --fb-glass: rgba(0, 0, 0, 0.035);
+                --fb-glass-hover: rgba(0, 0, 0, 0.07);
+                --fb-border: rgba(0, 0, 0, 0.045);
+                --fb-text: rgba(0, 0, 0, 0.28);
+                --fb-text-hover: rgba(0, 0, 0, 0.5);
+                --track: rgba(0, 0, 0, 0.05);
+                --nt-glass: rgba(0, 0, 0, 0.035);
+                --nt-text: rgba(0, 0, 0, 0.25);
+                --nt-live-glass: rgba(102, 126, 234, 0.1);
+                --nt-live-text: rgba(102, 126, 234, 0.65);
+                --select-bg: rgba(0, 0, 0, 0.035);
+                --select-border: rgba(0, 0, 0, 0.07);
+                --select-text: rgba(0, 0, 0, 0.45);
+                --slider-bg: rgba(0, 0, 0, 0.07);
+                --scramble-clr: rgba(0, 0, 0, 0.28);
+                --solve-clr: rgba(0, 0, 0, 0.5);
+                --scene: #e8e8ea;
+                --logo-clr: rgba(0, 0, 0, 0.55);
+                --divider: rgba(0, 0, 0, 0.04);
+                --thumb-bg: #ffffff;
+                --thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+            }
 
-    body {
-      font-family: -apple-system, 'Inter', 'Helvetica Neue', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      overflow: hidden;
-      height: 100vh;
-      user-select: none;
-      -webkit-font-smoothing: antialiased;
-      transition: background .35s, color .35s;
-    }
+            body {
+                font-family:
+                    -apple-system, "Inter", "Helvetica Neue", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                overflow: hidden;
+                height: 100vh;
+                user-select: none;
+                -webkit-font-smoothing: antialiased;
+                transition:
+                    background 0.35s,
+                    color 0.35s;
+            }
 
-    #canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-    }
+            #canvas {
+                position: fixed;
+                inset: 0;
+                z-index: 0;
+            }
 
-    /* ─── Top Bar ─── */
-    .top-bar {
-      position: fixed; top: 0; left: 0; right: 0;
-      z-index: 10;
-      padding: 18px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      pointer-events: none;
-    }
-    .top-bar > * { pointer-events: auto; }
+            /* ─── Top Bar ─── */
+            .top-bar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                padding: 18px 28px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                pointer-events: none;
+            }
+            .top-bar > * {
+                pointer-events: auto;
+            }
 
-    .logo {
-      display: flex; align-items: center; gap: 10px;
-    }
-    .logo-icon {
-      width: 22px; height: 22px;
-      border-radius: 5px;
-      background: var(--accent);
-      display: flex; align-items: center; justify-content: center;
-      font-size: .75rem; font-weight: 600; color: #fff;
-    }
-    .logo-text {
-      font-size: .85rem; font-weight: 500;
-      color: var(--logo-clr); letter-spacing: -.2px;
-      transition: color .35s;
-    }
+            .controls-toggle {
+                background: var(--btn-glass);
+                border: 0.5px solid var(--btn-border);
+                border-radius: 20px;
+                padding: 5px 12px;
+                cursor: pointer;
+                color: var(--btn-text);
+                font-size: 0.7rem;
+                font-weight: 500;
+                transition: all 0.25s;
+                font-family: inherit;
+                letter-spacing: -0.1px;
+                white-space: nowrap;
+            }
+            .controls-toggle:hover {
+                background: var(--btn-glass-hover);
+                color: var(--btn-text-hover);
+            }
+            .controls-toggle:active {
+                transform: scale(0.96);
+            }
 
-    /* ─── Theme Toggle ─── */
-    .theme-toggle {
-      background: var(--btn-glass);
-      border: .5px solid var(--btn-border);
-      border-radius: 22px;
-      padding: 3px;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      transition: all .25s;
-      width: 54px; height: 28px;
-      position: relative;
-    }
-    .theme-toggle:hover { background: var(--btn-glass-hover); }
-    .theme-toggle .thumb {
-      position: absolute;
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #764ba2);
-      transition: all .3s cubic-bezier(.4,0,.2,1);
-      z-index: 1;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .6rem; color: #fff;
-      left: 3px;
-    }
-    body.light .theme-toggle .thumb { left: 29px; }
-    .theme-toggle .icon-bg {
-      display: flex; align-items: center; justify-content: space-between;
-      width: 100%; padding: 0 6px;
-      font-size: .6rem; color: var(--label);
-    }
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .logo-icon {
+                width: 22px;
+                height: 22px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .logo-icon svg {
+                display: block;
+            }
+            .logo-text {
+                font-size: 0.85rem;
+                font-weight: 500;
+                color: var(--logo-clr);
+                letter-spacing: -0.2px;
+                transition: color 0.35s;
+            }
 
-    /* ─── Right Sidebar ─── */
-    .sidebar {
-      position: fixed; right: 20px; top: 50%;
-      transform: translateY(-50%);
-      z-index: 10; pointer-events: none;
-      width: 234px;
-      max-height: calc(100vh - 80px);
-    }
-    .sidebar > * { pointer-events: auto; }
+            /* ─── Theme Toggle ─── */
+            .theme-toggle {
+                background: var(--btn-glass);
+                border: 0.5px solid var(--btn-border);
+                border-radius: 22px;
+                padding: 3px;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                transition: all 0.25s;
+                width: 54px;
+                height: 28px;
+                position: relative;
+            }
+            .theme-toggle:hover {
+                background: var(--btn-glass-hover);
+            }
+            .theme-toggle .thumb {
+                position: absolute;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                background: var(--thumb-bg);
+                box-shadow: var(--thumb-shadow);
+                transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .theme-toggle .thumb svg {
+                display: block;
+            }
+            body.light .theme-toggle .thumb {
+                left: 29px;
+            }
+            .theme-toggle .icon-bg {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                padding: 0 6px;
+                font-size: 0.6rem;
+                color: var(--label);
+            }
 
-    .sidebar-glass {
-      background: var(--glass);
-      backdrop-filter: blur(48px) saturate(1.6);
-      -webkit-backdrop-filter: blur(48px) saturate(1.6);
-      border: .5px solid var(--glass-border);
-      border-radius: 18px;
-      padding: 18px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 12px 56px rgba(0,0,0,.55);
-      transition: background .35s, border-color .35s;
-      max-height: inherit;
-      overflow-y: auto;
-    }
-    .sidebar-glass::-webkit-scrollbar { width: 3px; }
-    .sidebar-glass::-webkit-scrollbar-thumb { background: var(--track); border-radius: 2px; }
+            /* ─── Right Sidebar ─── */
+            .sidebar {
+                position: fixed;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 10;
+                pointer-events: none;
+                width: 234px;
+                max-height: calc(100vh - 80px);
+                transition:
+                    right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.25s;
+            }
+            .sidebar > * {
+                pointer-events: auto;
+            }
+            .sidebar.collapsed {
+                right: -254px;
+                opacity: 0;
+                pointer-events: none;
+            }
 
-    .sb-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-    }
-    .sb-row.sb-between { justify-content: space-between; }
-    .sb-row.sb-center { align-items: center; }
-    .sb-group {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      flex: 1;
-      min-width: 0;
-    }
-    .sb-label {
-      font-size: .48rem;
-      font-weight: 600;
-      color: var(--label);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      transition: color .35s;
-    }
-    .sb-value {
-      font-size: .82rem;
-      font-weight: 500;
-      color: var(--muted);
-      transition: color .35s;
-    }
-    .sb-value.num {
-      color: var(--text);
-      font-weight: 600;
-      font-size: .9rem;
-    }
-    .sb-value.time {
-      font-family: 'SF Mono', 'JetBrains Mono', monospace;
-      font-size: .8rem;
-      font-weight: 500;
-      color: var(--solve-clr);
-      transition: color .35s;
-    }
-    #status-text {
-      font-size: .78rem;
-      color: var(--dim);
-      font-weight: 400;
-      transition: color .35s;
-    }
-    .sb-divider {
-      height: 1px;
-      background: var(--divider);
-      margin: 2px 0;
-      transition: background .35s;
-    }
+            .sidebar-glass {
+                background: var(--glass);
+                backdrop-filter: blur(48px) saturate(1.6);
+                -webkit-backdrop-filter: blur(48px) saturate(1.6);
+                border: 0.5px solid var(--glass-border);
+                border-radius: 18px;
+                padding: 18px 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                box-shadow: 0 12px 56px rgba(0, 0, 0, 0.55);
+                transition:
+                    background 0.35s,
+                    border-color 0.35s;
+                max-height: inherit;
+                overflow-y: auto;
+            }
+            .sidebar-glass::-webkit-scrollbar {
+                width: 3px;
+            }
+            .sidebar-glass::-webkit-scrollbar-thumb {
+                background: var(--track);
+                border-radius: 2px;
+            }
 
-    /* progress */
-    .progress-wrap {
-      display: none;
-      flex-direction: column;
-      gap: 3px;
-      margin: -2px 0;
-    }
-    .progress-wrap.visible { display: flex; }
-    .progress-header {
-      display: flex; justify-content: space-between;
-      font-size: .58rem; color: var(--muted);
-      transition: color .35s;
-    }
-    .track {
-      width: 100%; height: 2px;
-      background: var(--track);
-      border-radius: 2px; overflow: hidden;
-      transition: background .35s;
-    }
-    .fill {
-      height: 100%; width: 0;
-      background: linear-gradient(90deg, var(--accent), #764ba2);
-      border-radius: 2px;
-      transition: width .12s;
-    }
+            .sb-row {
+                display: flex;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            .sb-row.sb-between {
+                justify-content: space-between;
+            }
+            .sb-row.sb-center {
+                align-items: center;
+            }
+            .sb-group {
+                display: flex;
+                flex-direction: column;
+                gap: 1px;
+                flex: 1;
+                min-width: 0;
+            }
+            .sb-label {
+                font-size: 0.48rem;
+                font-weight: 600;
+                color: var(--label);
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                transition: color 0.35s;
+            }
+            .sb-value {
+                font-size: 0.82rem;
+                font-weight: 500;
+                color: var(--muted);
+                transition: color 0.35s;
+            }
+            .sb-value.num {
+                color: var(--text);
+                font-weight: 600;
+                font-size: 0.9rem;
+            }
+            .sb-value.time {
+                font-family: "SF Mono", "JetBrains Mono", monospace;
+                font-size: 0.8rem;
+                font-weight: 500;
+                color: var(--solve-clr);
+                transition: color 0.35s;
+            }
+            #status-text {
+                font-size: 0.78rem;
+                color: var(--dim);
+                font-weight: 400;
+                transition: color 0.35s;
+            }
+            .sb-divider {
+                height: 1px;
+                background: var(--divider);
+                margin: 2px 0;
+                transition: background 0.35s;
+            }
 
-    /* notation */
-    .notation-strip {
-      display: none;
-      flex-wrap: wrap;
-      gap: 2px;
-    }
-    .notation-strip.visible { display: flex; }
-    .nt {
-      font-family: 'SF Mono', 'JetBrains Mono', monospace;
-      font-size: .58rem;
-      font-weight: 500;
-      padding: 1px 4px;
-      border-radius: 3px;
-      background: var(--nt-glass);
-      color: var(--nt-text);
-      transition: background .35s, color .35s;
-    }
-    .nt.live {
-      background: var(--nt-live-glass);
-      color: var(--nt-live-text);
-    }
+            /* progress */
+            .progress-wrap {
+                display: none;
+                flex-direction: column;
+                gap: 3px;
+                margin: -2px 0;
+            }
+            .progress-wrap.visible {
+                display: flex;
+            }
+            .progress-header {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.58rem;
+                color: var(--muted);
+                transition: color 0.35s;
+            }
+            .track {
+                width: 100%;
+                height: 2px;
+                background: var(--track);
+                border-radius: 2px;
+                overflow: hidden;
+                transition: background 0.35s;
+            }
+            .fill {
+                height: 100%;
+                width: 0;
+                background: linear-gradient(90deg, var(--accent), #764ba2);
+                border-radius: 2px;
+                transition: width 0.12s;
+            }
 
-    #scramble-notation {
-      font-family: 'SF Mono', 'JetBrains Mono', monospace;
-      font-size: .54rem;
-      color: var(--scramble-clr);
-      line-height: 1.55;
-      word-break: break-all;
-      transition: color .35s;
-      min-height: .9em;
-    }
+            /* notation */
+            .notation-strip {
+                display: none;
+                flex-wrap: wrap;
+                gap: 2px;
+            }
+            .notation-strip.visible {
+                display: flex;
+            }
+            .nt {
+                font-family: "SF Mono", "JetBrains Mono", monospace;
+                font-size: 0.58rem;
+                font-weight: 500;
+                padding: 1px 4px;
+                border-radius: 3px;
+                background: var(--nt-glass);
+                color: var(--nt-text);
+                transition:
+                    background 0.35s,
+                    color 0.35s;
+            }
+            .nt.live {
+                background: var(--nt-live-glass);
+                color: var(--nt-live-text);
+            }
 
-    /* action buttons */
-    .sb-actions {
-      display: flex;
-      gap: 4px;
-    }
-    .sb-actions .btn { flex: 1; text-align: center; }
+            #scramble-notation {
+                font-family: "SF Mono", "JetBrains Mono", monospace;
+                font-size: 0.54rem;
+                color: var(--scramble-clr);
+                line-height: 1.55;
+                word-break: break-all;
+                transition: color 0.35s;
+                min-height: 0.9em;
+            }
 
-    .btn {
-      padding: 5px 10px;
-      border: none;
-      border-radius: 16px;
-      font-size: .7rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all .2s;
-      font-family: inherit;
-      letter-spacing: -.1px;
-      color: var(--btn-text);
-      background: var(--btn-glass);
-      border: .5px solid var(--btn-border);
-    }
-    .btn:hover:not(:disabled) {
-      color: var(--btn-text-hover);
-      background: var(--btn-glass-hover);
-      transform: scale(1.02);
-    }
-    .btn:active:not(:disabled) { transform: scale(.97); }
-    .btn:disabled { opacity: .18; cursor: not-allowed; }
-    .btn .hint {
-      font-size: .52rem; opacity: .2; margin-left: 2px; font-weight: 400;
-    }
-    .btn-danger {
-      background: linear-gradient(135deg, #f05a5a, #c0392b);
-      color: #fff; border: none;
-    }
-    .btn-danger:hover:not(:disabled) { filter: brightness(1.1); color: #fff; }
-    .btn-success {
-      background: linear-gradient(135deg, #34d978, #219a52);
-      color: #fff; border: none;
-    }
-    .btn-success:hover:not(:disabled) { filter: brightness(1.1); color: #fff; }
+            /* action buttons */
+            .sb-actions {
+                display: flex;
+                gap: 4px;
+            }
+            .sb-actions .btn {
+                flex: 1;
+                text-align: center;
+            }
 
-    /* face buttons */
-    .sb-faces {
-      display: flex;
-      gap: 3px;
-      flex-wrap: wrap;
-    }
-    .fb {
-      width: 26px; height: 22px;
-      border: none;
-      border-radius: 5px;
-      font-family: 'SF Mono', 'JetBrains Mono', monospace;
-      font-size: .62rem; font-weight: 600;
-      cursor: pointer;
-      transition: all .15s;
-      background: var(--fb-glass);
-      color: var(--fb-text);
-      border: .5px solid var(--fb-border);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .fb:hover:not(:disabled) {
-      background: var(--fb-glass-hover);
-      color: var(--fb-text-hover);
-    }
-    .fb:disabled { opacity: .16; cursor: not-allowed; }
-    .fb.ccw::after { content: "'"; font-size: .45rem; vertical-align: super; }
+            .btn {
+                padding: 5px 10px;
+                border: none;
+                border-radius: 16px;
+                font-size: 0.7rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-family: inherit;
+                letter-spacing: -0.1px;
+                color: var(--btn-text);
+                background: var(--btn-glass);
+                border: 0.5px solid var(--btn-border);
+            }
+            .btn:hover:not(:disabled) {
+                color: var(--btn-text-hover);
+                background: var(--btn-glass-hover);
+                transform: scale(1.02);
+            }
+            .btn:active:not(:disabled) {
+                transform: scale(0.97);
+            }
+            .btn:disabled {
+                opacity: 0.18;
+                cursor: not-allowed;
+            }
+            .btn .hint {
+                font-size: 0.52rem;
+                opacity: 0.2;
+                margin-left: 2px;
+                font-weight: 400;
+            }
+            .btn-danger {
+                background: linear-gradient(135deg, #f05a5a, #c0392b);
+                color: #fff;
+                border: none;
+            }
+            .btn-danger:hover:not(:disabled) {
+                filter: brightness(1.1);
+                color: #fff;
+            }
+            .btn-success {
+                background: linear-gradient(135deg, #34d978, #219a52);
+                color: #fff;
+                border: none;
+            }
+            .btn-success:hover:not(:disabled) {
+                filter: brightness(1.1);
+                color: #fff;
+            }
 
-    /* bottom row */
-    .sb-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .sl-group {
-      display: flex; align-items: center; gap: 3px;
-      font-size: .55rem; color: var(--label);
-      transition: color .35s;
-    }
-    .sl-group select {
-      background: var(--select-bg);
-      border: .5px solid var(--select-border);
-      border-radius: 4px;
-      color: var(--select-text);
-      padding: 1px 4px;
-      font-size: .55rem;
-      font-family: inherit;
-      outline: none;
-      cursor: pointer;
-      transition: background .35s, border-color .35s, color .35s;
-    }
-    .sl-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+            /* face buttons */
+            .sb-faces {
+                display: flex;
+                gap: 3px;
+                flex-wrap: wrap;
+            }
+            .fb {
+                width: 26px;
+                height: 22px;
+                border: none;
+                border-radius: 5px;
+                font-family: "SF Mono", "JetBrains Mono", monospace;
+                font-size: 0.62rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.15s;
+                background: var(--fb-glass);
+                color: var(--fb-text);
+                border: 0.5px solid var(--fb-border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .fb:hover:not(:disabled) {
+                background: var(--fb-glass-hover);
+                color: var(--fb-text-hover);
+            }
+            .fb:disabled {
+                opacity: 0.16;
+                cursor: not-allowed;
+            }
+            .fb.ccw::after {
+                content: "'";
+                font-size: 0.45rem;
+                vertical-align: super;
+            }
 
-    .speed {
-      display: flex; align-items: center; gap: 4px;
-      font-size: .5rem; color: var(--label);
-      transition: color .35s;
-    }
-    .speed input[type="range"] {
-      width: 50px; height: 2px;
-      -webkit-appearance: none; appearance: none;
-      background: var(--slider-bg);
-      border-radius: 2px; outline: none;
-      transition: background .35s;
-    }
-    .speed input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 9px; height: 9px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #764ba2);
-      cursor: pointer; border: none;
-    }
-    .speed input[type="range"]::-moz-range-thumb {
-      width: 9px; height: 9px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #764ba2);
-      cursor: pointer; border: none;
-    }
+            /* bottom row */
+            .sb-bottom {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .sl-group {
+                display: flex;
+                align-items: center;
+                gap: 3px;
+                font-size: 0.55rem;
+                color: var(--label);
+                transition: color 0.35s;
+            }
+            .sl-group select {
+                background: var(--select-bg);
+                border: 0.5px solid var(--select-border);
+                border-radius: 4px;
+                color: var(--select-text);
+                padding: 1px 4px;
+                font-size: 0.55rem;
+                font-family: inherit;
+                outline: none;
+                cursor: pointer;
+                transition:
+                    background 0.35s,
+                    border-color 0.35s,
+                    color 0.35s;
+            }
+            .sl-group select:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 2px var(--accent-glow);
+            }
 
-    #celebration-canvas {
-      position: fixed; inset: 0;
-      z-index: 5; pointer-events: none;
-      opacity: 0; transition: opacity .5s;
-    }
-    #celebration-canvas.active { opacity: 1; }
+            .speed {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 0.5rem;
+                color: var(--label);
+                transition: color 0.35s;
+            }
+            .speed input[type="range"] {
+                width: 50px;
+                height: 2px;
+                -webkit-appearance: none;
+                appearance: none;
+                background: var(--slider-bg);
+                border-radius: 2px;
+                outline: none;
+                transition: background 0.35s;
+            }
+            .speed input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--accent), #764ba2);
+                cursor: pointer;
+                border: none;
+            }
+            .speed input[type="range"]::-moz-range-thumb {
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--accent), #764ba2);
+                cursor: pointer;
+                border: none;
+            }
 
-    @media (max-width: 900px) {
-      .sidebar { width: 210px; right: 12px; }
-      .sidebar-glass { padding: 14px 16px; gap: 8px; }
-    }
-    @media (max-width: 640px) {
-      .top-bar { padding: 14px 16px; }
-      .logo-text { font-size: .8rem; }
-      .sidebar { width: 175px; right: 8px; }
-      .sidebar-glass { padding: 12px 12px; gap: 6px; border-radius: 14px; }
-      .sb-value { font-size: .75rem; }
-      .sb-value.num { font-size: .82rem; }
-      #status-text { font-size: .72rem; }
-      .nt { font-size: .52rem; }
-      .sb-actions .btn { font-size: .65rem; padding: 4px 6px; }
-      .fb { width: 22px; height: 20px; font-size: .55rem; }
-      .btn .hint { display: none; }
-      .speed input[type="range"] { width: 34px; }
-    }
-  </style>
-</head>
-<body>
+            #celebration-canvas {
+                position: fixed;
+                inset: 0;
+                z-index: 5;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.5s;
+            }
+            #celebration-canvas.active {
+                opacity: 1;
+            }
 
-  <div id="canvas"></div>
-  <canvas id="celebration-canvas"></canvas>
+            /* ─── Sidebar Backdrop ─── */
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+                z-index: 9;
+                background: rgba(0, 0, 0, 0.35);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .sidebar-backdrop.visible {
+                opacity: 1;
+                pointer-events: auto;
+            }
 
-  <!-- ─── Top Bar ─── -->
-  <div class="top-bar">
-    <div class="logo">
-      <div class="logo-icon">&#9674;</div>
-      <div class="logo-text">CubeSolver</div>
-    </div>
-    <div class="theme-toggle" id="theme-toggle" role="button" tabindex="0" aria-label="Toggle theme">
-      <span class="thumb">&#9788;</span>
-      <span class="icon-bg"><span>&#9788;</span><span>&#9790;</span></span>
-    </div>
-  </div>
+            @media (min-width: 641px) {
+                .sidebar-backdrop {
+                    display: none;
+                }
+            }
 
-  <!-- ─── Sidebar ─── -->
-  <div class="sidebar">
-    <div class="sidebar-glass">
+            @media (max-width: 900px) {
+                .sidebar {
+                    width: 210px;
+                    right: 12px;
+                }
+                .sidebar.collapsed {
+                    right: -230px;
+                }
+                .sidebar-glass {
+                    padding: 14px 16px;
+                    gap: 8px;
+                }
+            }
+            @media (max-width: 640px) {
+                .top-bar {
+                    padding: 14px 16px;
+                }
+                .logo-text {
+                    font-size: 0.8rem;
+                }
+                .sidebar {
+                    width: 175px;
+                    right: 8px;
+                }
+                .sidebar.collapsed {
+                    right: -195px;
+                }
+                .sidebar-glass {
+                    padding: 12px 12px;
+                    gap: 6px;
+                    border-radius: 14px;
+                }
+                .controls-toggle {
+                    font-size: 0.65rem;
+                    padding: 4px 8px;
+                }
+                .sb-value {
+                    font-size: 0.75rem;
+                }
+                .sb-value.num {
+                    font-size: 0.82rem;
+                }
+                #status-text {
+                    font-size: 0.72rem;
+                }
+                .nt {
+                    font-size: 0.52rem;
+                }
+                .sb-actions .btn {
+                    font-size: 0.65rem;
+                    padding: 4px 6px;
+                }
+                .fb {
+                    width: 22px;
+                    height: 20px;
+                    font-size: 0.55rem;
+                }
+                .btn .hint {
+                    display: none;
+                }
+                .speed input[type="range"] {
+                    width: 34px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="canvas"></div>
+        <canvas id="celebration-canvas"></canvas>
 
-      <!-- Status + Moves + Time -->
-      <div class="sb-row sb-between">
-        <div class="sb-group">
-          <div class="sb-label">Status</div>
-          <div id="status-text">Ready</div>
+        <!-- ─── Top Bar ─── -->
+        <div class="top-bar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 22 22" width="22" height="22" fill="none">
+                        <rect
+                            x="1"
+                            y="1"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#FF2040"
+                        />
+                        <rect
+                            x="8"
+                            y="1"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#FFFFFF"
+                        />
+                        <rect
+                            x="15"
+                            y="1"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#3080FF"
+                        />
+                        <rect
+                            x="1"
+                            y="8"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#FFFFFF"
+                        />
+                        <rect
+                            x="8"
+                            y="8"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#00E060"
+                        />
+                        <rect
+                            x="15"
+                            y="8"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#FFE000"
+                        />
+                        <rect
+                            x="1"
+                            y="15"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#FF8020"
+                        />
+                        <rect
+                            x="8"
+                            y="15"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#FFFFFF"
+                        />
+                        <rect
+                            x="15"
+                            y="15"
+                            width="6"
+                            height="6"
+                            rx="1.2"
+                            fill="#FF2040"
+                        />
+                    </svg>
+                </div>
+                <div class="logo-text">CubeSolver</div>
+            </div>
+            <button class="controls-toggle" id="controls-toggle">
+                <svg
+                    viewBox="0 0 14 14"
+                    width="11"
+                    height="11"
+                    fill="none"
+                    style="vertical-align: -1px; margin-right: 4px"
+                >
+                    <rect
+                        x="1"
+                        y="1"
+                        width="12"
+                        height="12"
+                        rx="3"
+                        stroke="currentColor"
+                        stroke-width="1.2"
+                    />
+                    <line
+                        x1="4"
+                        y1="4"
+                        x2="10"
+                        y2="4"
+                        stroke="currentColor"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                    />
+                    <line
+                        x1="4"
+                        y1="7"
+                        x2="10"
+                        y2="7"
+                        stroke="currentColor"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                    />
+                    <line
+                        x1="4"
+                        y1="10"
+                        x2="8"
+                        y2="10"
+                        stroke="currentColor"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                    />
+                </svg>
+                <span id="toggle-label">Hide Controls</span>
+            </button>
+            <div
+                class="theme-toggle"
+                id="theme-toggle"
+                role="button"
+                tabindex="0"
+                aria-label="Toggle theme"
+            >
+                <span class="thumb" id="theme-thumb"></span>
+                <span class="icon-bg">
+                    <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
+                        <circle
+                            cx="8"
+                            cy="8"
+                            r="3"
+                            fill="#FFD700"
+                            opacity="0.55"
+                        />
+                        <g
+                            stroke="#FFD700"
+                            stroke-width="1.3"
+                            stroke-linecap="round"
+                            opacity="0.55"
+                        >
+                            <line x1="8" y1="1.5" x2="8" y2="3.5" />
+                            <line x1="8" y1="12.5" x2="8" y2="14.5" />
+                            <line x1="1.5" y1="8" x2="3.5" y2="8" />
+                            <line x1="12.5" y1="8" x2="14.5" y2="8" />
+                            <line x1="3.2" y1="3.2" x2="4.6" y2="4.6" />
+                            <line x1="11.4" y1="11.4" x2="12.8" y2="12.8" />
+                            <line x1="3.2" y1="12.8" x2="4.6" y2="11.4" />
+                            <line x1="11.4" y1="4.6" x2="12.8" y2="3.2" />
+                        </g>
+                    </svg>
+                    <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
+                        <path
+                            d="M11 4a5 5 0 1 0 5 5c0-2.5-1.8-4.3-5-5z"
+                            fill="#8890B8"
+                            opacity="0.45"
+                        />
+                        <path
+                            d="M11 4a5 5 0 0 1 5 5c-2.2 0-3.9-1.8-3.9-3.9 0-.4 0-.8.1-1.1z"
+                            fill="#6C74A0"
+                            opacity="0.65"
+                        />
+                    </svg>
+                </span>
+            </div>
         </div>
-        <div class="sb-group" style="flex:0;min-width:50px;text-align:right">
-          <div class="sb-label">Moves</div>
-          <div class="sb-value num" id="move-count">0</div>
+
+        <!-- ─── Sidebar backdrop (mobile) ─── -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <!-- ─── Sidebar ─── -->
+        <div class="sidebar">
+            <div class="sidebar-glass">
+                <!-- Status + Moves + Time -->
+                <div class="sb-row sb-between">
+                    <div class="sb-group">
+                        <div class="sb-label">Status</div>
+                        <div id="status-text">Ready</div>
+                    </div>
+                    <div
+                        class="sb-group"
+                        style="flex: 0; min-width: 50px; text-align: right"
+                    >
+                        <div class="sb-label">Moves</div>
+                        <div class="sb-value num" id="move-count">0</div>
+                    </div>
+                </div>
+
+                <div class="sb-row sb-between">
+                    <div class="sb-group">
+                        <div class="sb-label">Time</div>
+                        <div class="sb-value time" id="solve-time">&mdash;</div>
+                    </div>
+                    <div
+                        class="progress-wrap"
+                        id="progress-wrap"
+                        style="flex: 1; max-width: 120px"
+                    >
+                        <div class="track" style="margin-top: 12px">
+                            <div class="fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-header">
+                            <span>Progress</span>
+                            <span id="progress-label">0/0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Last Moves -->
+                <div class="sb-group">
+                    <div class="sb-label">Last Moves</div>
+                    <div class="notation-strip" id="notation-strip"></div>
+                </div>
+
+                <!-- Scramble -->
+                <div class="sb-group">
+                    <div class="sb-label">Scramble</div>
+                    <div id="scramble-notation">&mdash;</div>
+                </div>
+
+                <div class="sb-divider"></div>
+
+                <!-- Action buttons -->
+                <div class="sb-actions">
+                    <button class="btn btn-danger" id="btn-scramble">
+                        Scramble <span class="hint">S</span>
+                    </button>
+                    <button class="btn btn-success" id="btn-solve">
+                        Solve <span class="hint">&#8626;</span>
+                    </button>
+                    <button class="btn" id="btn-reset">
+                        Reset <span class="hint">R</span>
+                    </button>
+                </div>
+
+                <!-- Face buttons -->
+                <div class="sb-faces">
+                    <button class="fb" data-face="U" data-dir="1">U</button>
+                    <button class="fb ccw" data-face="U" data-dir="-1">
+                        U
+                    </button>
+                    <button class="fb" data-face="R" data-dir="1">R</button>
+                    <button class="fb ccw" data-face="R" data-dir="-1">
+                        R
+                    </button>
+                    <button class="fb" data-face="F" data-dir="1">F</button>
+                    <button class="fb ccw" data-face="F" data-dir="-1">
+                        F
+                    </button>
+                    <button class="fb" data-face="D" data-dir="1">D</button>
+                    <button class="fb ccw" data-face="D" data-dir="-1">
+                        D
+                    </button>
+                    <button class="fb" data-face="L" data-dir="1">L</button>
+                    <button class="fb ccw" data-face="L" data-dir="-1">
+                        L
+                    </button>
+                    <button class="fb" data-face="B" data-dir="1">B</button>
+                    <button class="fb ccw" data-face="B" data-dir="-1">
+                        B
+                    </button>
+                </div>
+
+                <div class="sb-divider"></div>
+
+                <!-- Bottom -->
+                <div class="sb-bottom">
+                    <div class="sl-group">
+                        Scramble
+                        <select id="scramble-length">
+                            <option value="12">12</option>
+                            <option value="20" selected>20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                        </select>
+                    </div>
+                    <div class="speed">
+                        <span>Slow</span>
+                        <input
+                            type="range"
+                            id="speed-slider"
+                            min="1"
+                            max="10"
+                            value="5"
+                        />
+                        <span>Fast</span>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <div class="sb-row sb-between">
-        <div class="sb-group">
-          <div class="sb-label">Time</div>
-          <div class="sb-value time" id="solve-time">&mdash;</div>
-        </div>
-        <div class="progress-wrap" id="progress-wrap" style="flex:1;max-width:120px">
-          <div class="track" style="margin-top:12px"><div class="fill" id="progress-fill"></div></div>
-          <div class="progress-header">
-            <span>Progress</span>
-            <span id="progress-label">0/0</span>
-          </div>
-        </div>
-      </div>
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+                    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+                }
+            }
+        </script>
 
-      <!-- Last Moves -->
-      <div class="sb-group">
-        <div class="sb-label">Last Moves</div>
-        <div class="notation-strip" id="notation-strip"></div>
-      </div>
+        <script type="module">
+            import * as THREE from "three";
+            import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-      <!-- Scramble -->
-      <div class="sb-group">
-        <div class="sb-label">Scramble</div>
-        <div id="scramble-notation">&mdash;</div>
-      </div>
+            const COL = {
+                R: 0xff2040,
+                O: 0xff8020,
+                W: 0xffffff,
+                Y: 0xffe000,
+                G: 0x00e060,
+                B: 0x3080ff,
+                DARK: 0x080808,
+            };
 
-      <div class="sb-divider"></div>
+            const FACE = {
+                R: { axis: [1, 0, 0], dir: 1, check: (p) => p.x > 0.5 },
+                L: { axis: [1, 0, 0], dir: -1, check: (p) => p.x < -0.5 },
+                U: { axis: [0, 1, 0], dir: 1, check: (p) => p.y > 0.5 },
+                D: { axis: [0, 1, 0], dir: -1, check: (p) => p.y < -0.5 },
+                F: { axis: [0, 0, 1], dir: 1, check: (p) => p.z > 0.5 },
+                B: { axis: [0, 0, 1], dir: -1, check: (p) => p.z < -0.5 },
+            };
 
-      <!-- Action buttons -->
-      <div class="sb-actions">
-        <button class="btn btn-danger" id="btn-scramble">Scramble <span class="hint">S</span></button>
-        <button class="btn btn-success" id="btn-solve">Solve <span class="hint">&#8626;</span></button>
-        <button class="btn" id="btn-reset">Reset <span class="hint">R</span></button>
-      </div>
+            const NAMES = ["R", "L", "U", "D", "F", "B"];
+            const SCENE_BG = { dark: 0x121214, light: 0xe8e8ea };
 
-      <!-- Face buttons -->
-      <div class="sb-faces">
-        <button class="fb" data-face="U" data-dir="1">U</button>
-        <button class="fb ccw" data-face="U" data-dir="-1">U</button>
-        <button class="fb" data-face="R" data-dir="1">R</button>
-        <button class="fb ccw" data-face="R" data-dir="-1">R</button>
-        <button class="fb" data-face="F" data-dir="1">F</button>
-        <button class="fb ccw" data-face="F" data-dir="-1">F</button>
-        <button class="fb" data-face="D" data-dir="1">D</button>
-        <button class="fb ccw" data-face="D" data-dir="-1">D</button>
-        <button class="fb" data-face="L" data-dir="1">L</button>
-        <button class="fb ccw" data-face="L" data-dir="-1">L</button>
-        <button class="fb" data-face="B" data-dir="1">B</button>
-        <button class="fb ccw" data-face="B" data-dir="-1">B</button>
-      </div>
+            const cubies = [];
+            let moveHistory = [],
+                moveCount = 0,
+                totalQueued = 0;
+            let isAnimating = false,
+                state = "IDLE",
+                pendingAction = null;
+            const moveQueue = [];
+            let currentAnim = null,
+                lastNotation = [],
+                currentScramble = [],
+                solveStartTime = 0;
+            let isDark = localStorage.getItem("cube-theme") === "dark";
 
-      <div class="sb-divider"></div>
+            // ─── Three.js ───
+            const container = document.getElementById("canvas");
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(SCENE_BG.dark);
 
-      <!-- Bottom -->
-      <div class="sb-bottom">
-        <div class="sl-group">
-          Scramble
-          <select id="scramble-length">
-            <option value="12">12</option>
-            <option value="20" selected>20</option>
-            <option value="25">25</option>
-            <option value="30">30</option>
-          </select>
-        </div>
-        <div class="speed">
-          <span>Slow</span>
-          <input type="range" id="speed-slider" min="1" max="10" value="5" />
-          <span>Fast</span>
-        </div>
-      </div>
+            const camera = new THREE.PerspectiveCamera(
+                36,
+                container.clientWidth / container.clientHeight,
+                0.1,
+                100,
+            );
+            camera.position.set(5.5, 4.5, 5.5);
 
-    </div>
-  </div>
+            const renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: false,
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 2.2;
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
 
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
-    }
-  }
-  </script>
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.07;
+            controls.minDistance = 4;
+            controls.maxDistance = 12;
+            controls.target.set(0, 0, 0);
+            controls.autoRotate = false;
+            controls.autoRotateSpeed = 1.8;
 
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+            let autoTimer = null;
+            function startAutoRotate() {
+                if (state !== "IDLE") {
+                    controls.autoRotate = false;
+                    return;
+                }
+                controls.autoRotate = true;
+            }
+            function stopAutoRotate() {
+                controls.autoRotate = false;
+                clearTimeout(autoTimer);
+            }
+            function scheduleAutoRotate() {
+                clearTimeout(autoTimer);
+                controls.autoRotate = false;
+                if (state === "IDLE")
+                    autoTimer = setTimeout(startAutoRotate, 4000);
+            }
+            controls.addEventListener("start", stopAutoRotate);
+            controls.addEventListener("end", scheduleAutoRotate);
 
-    const COL = {
-      R: 0xFF2040, O: 0xFF8020, W: 0xFFFFFF,
-      Y: 0xFFE000, G: 0x00E060, B: 0x3080FF,
-      DARK: 0x080808,
-    };
+            // ─── Lights ───
+            scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+            const key = new THREE.DirectionalLight(0xffffff, 4.5);
+            key.position.set(6, 10, 7);
+            scene.add(key);
+            const fill = new THREE.DirectionalLight(0xffffff, 1.2);
+            fill.position.set(-5, 3, 5);
+            scene.add(fill);
+            const rim = new THREE.DirectionalLight(0xffffff, 0.7);
+            rim.position.set(-3, -6, -5);
+            scene.add(rim);
 
-    const FACE = {
-      R: { axis: [1,0,0], dir:  1, check: p => p.x > 0.5 },
-      L: { axis: [1,0,0], dir: -1, check: p => p.x < -0.5 },
-      U: { axis: [0,1,0], dir:  1, check: p => p.y > 0.5 },
-      D: { axis: [0,1,0], dir:  1, check: p => p.y < -0.5 },
-      F: { axis: [0,0,1], dir: -1, check: p => p.z > 0.5 },
-      B: { axis: [0,0,1], dir:  1, check: p => p.z < -0.5 },
-    };
+            // ─── Theme ───
+            function setTheme(dark) {
+                isDark = dark;
+                document.body.classList.toggle("light", !dark);
+                scene.background = new THREE.Color(
+                    dark ? SCENE_BG.dark : SCENE_BG.light,
+                );
+                localStorage.setItem("cube-theme", dark ? "dark" : "light");
+            }
+            document
+                .getElementById("theme-toggle")
+                .addEventListener("click", () => setTheme(!isDark));
+            setTheme(isDark);
 
-    const NAMES = ['R','L','U','D','F','B'];
-    const SCENE_BG = { dark: 0x121214, light: 0xe8e8ea };
+            // ─── Cube ───
+            function makeBodyMat() {
+                return new THREE.MeshStandardMaterial({
+                    color: COL.DARK,
+                    roughness: 0.4,
+                    metalness: 0.2,
+                });
+            }
+            function makeStickerMat(color) {
+                return new THREE.MeshStandardMaterial({
+                    color,
+                    roughness: 0.15,
+                    metalness: 0,
+                });
+            }
+            function createCubie(x, y, z) {
+                const g = new THREE.Group();
+                g.position.set(x, y, z);
+                const body = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.94, 0.94, 0.94),
+                    makeBodyMat(),
+                );
+                g.add(body);
+                const sGeo = new THREE.PlaneGeometry(0.78, 0.78);
+                const off = 0.471;
+                const faces = [
+                    {
+                        p: [off, 0, 0],
+                        r: [0, Math.PI / 2, 0],
+                        c: COL.R,
+                        show: x === 1,
+                    },
+                    {
+                        p: [-off, 0, 0],
+                        r: [0, -Math.PI / 2, 0],
+                        c: COL.O,
+                        show: x === -1,
+                    },
+                    {
+                        p: [0, off, 0],
+                        r: [-Math.PI / 2, 0, 0],
+                        c: COL.W,
+                        show: y === 1,
+                    },
+                    {
+                        p: [0, -off, 0],
+                        r: [Math.PI / 2, 0, 0],
+                        c: COL.Y,
+                        show: y === -1,
+                    },
+                    { p: [0, 0, off], r: [0, 0, 0], c: COL.G, show: z === 1 },
+                    {
+                        p: [0, 0, -off],
+                        r: [0, Math.PI, 0],
+                        c: COL.B,
+                        show: z === -1,
+                    },
+                ];
+                for (const f of faces) {
+                    if (!f.show) continue;
+                    const m = new THREE.Mesh(sGeo, makeStickerMat(f.c));
+                    m.position.set(...f.p);
+                    m.rotation.set(...f.r);
+                    g.add(m);
+                }
+                return g;
+            }
+            function buildCube() {
+                while (cubies.length) scene.remove(cubies.pop());
+                for (let x = -1; x <= 1; x++)
+                    for (let y = -1; y <= 1; y++)
+                        for (let z = -1; z <= 1; z++) {
+                            const c = createCubie(x, y, z);
+                            cubies.push(c);
+                            scene.add(c);
+                        }
+            }
+            buildCube();
 
-    const cubies = [];
-    let moveHistory = [], moveCount = 0, totalQueued = 0;
-    let isAnimating = false, state = 'IDLE', pendingAction = null;
-    const moveQueue = [];
-    let currentAnim = null, lastNotation = [], currentScramble = [], solveStartTime = 0;
-    let isDark = true;
+            // ─── Helpers ───
+            function getCubies(check) {
+                return cubies.filter((c) => check(c.position));
+            }
+            function snapCubie(c) {
+                c.position.x = Math.round(c.position.x);
+                c.position.y = Math.round(c.position.y);
+                c.position.z = Math.round(c.position.z);
+                const e = new THREE.Euler().setFromQuaternion(c.quaternion);
+                const s = (v) => Math.round(v / (Math.PI / 2)) * (Math.PI / 2);
+                e.x = s(e.x);
+                e.y = s(e.y);
+                e.z = s(e.z);
+                c.quaternion.setFromEuler(e);
+            }
+            function easeInOutCubic(t) {
+                return t < 0.5
+                    ? 4 * t * t * t
+                    : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
 
-    // ─── Three.js ───
-    const container = document.getElementById('canvas');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(SCENE_BG.dark);
+            function startAnimation(face, dir, cb) {
+                const data = FACE[face];
+                const angle = (data.dir * dir * Math.PI) / 2;
+                const fc = getCubies(data.check);
+                if (!fc.length) {
+                    if (cb) cb();
+                    return;
+                }
+                const pivot = new THREE.Group();
+                scene.add(pivot);
+                fc.forEach((c) => pivot.attach(c));
+                const sq = new THREE.Quaternion();
+                const eq = new THREE.Quaternion().setFromAxisAngle(
+                    new THREE.Vector3(data.axis[0], data.axis[1], data.axis[2]),
+                    angle,
+                );
+                const speed = document.getElementById("speed-slider").value / 5;
+                currentAnim = {
+                    pivot,
+                    cubies: fc,
+                    sq,
+                    eq,
+                    start: performance.now(),
+                    dur: 0.28 / speed,
+                    cb,
+                };
+            }
 
-    const camera = new THREE.PerspectiveCamera(36, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(5.5, 4.5, 5.5);
+            function updateAnimation() {
+                if (!currentAnim) return;
+                const a = currentAnim;
+                const t = Math.min(
+                    (performance.now() - a.start) / 1000 / a.dur,
+                    1,
+                );
+                a.pivot.quaternion.copy(a.sq).slerp(a.eq, easeInOutCubic(t));
+                if (t >= 1) {
+                    a.pivot.quaternion.copy(a.eq);
+                    a.cubies.forEach((c) => {
+                        scene.attach(c);
+                        snapCubie(c);
+                    });
+                    scene.remove(a.pivot);
+                    const cb = a.cb;
+                    currentAnim = null;
+                    if (cb) cb();
+                }
+            }
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 2.2;
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    container.appendChild(renderer.domElement);
+            function queueMove(face, dir) {
+                moveQueue.push({ face, dir });
+                tick();
+            }
+            function queueMoves(arr) {
+                arr.forEach((m) => moveQueue.push(m));
+                tick();
+            }
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.07;
-    controls.minDistance = 4;
-    controls.maxDistance = 12;
-    controls.target.set(0, 0, 0);
-    controls.autoRotate = false;
-    controls.autoRotateSpeed = 1.8;
+            function tick() {
+                if (isAnimating || !moveQueue.length) {
+                    if (
+                        !isAnimating &&
+                        !moveQueue.length &&
+                        state === "ANIMATING"
+                    )
+                        finishAction();
+                    return;
+                }
+                isAnimating = true;
+                const m = moveQueue.shift();
+                moveHistory.push({ face: m.face, dir: m.dir });
+                moveCount++;
+                updateUI();
+                updateProgress();
+                addNotation(m.face, m.dir);
+                startAnimation(m.face, m.dir, () => {
+                    isAnimating = false;
+                    tick();
+                });
+            }
 
-    let autoTimer = null;
-    function startAutoRotate() {
-      if (state !== 'IDLE') { controls.autoRotate = false; return; }
-      controls.autoRotate = true;
-    }
-    function stopAutoRotate() {
-      controls.autoRotate = false;
-      clearTimeout(autoTimer);
-    }
-    function scheduleAutoRotate() {
-      clearTimeout(autoTimer);
-      controls.autoRotate = false;
-      if (state === 'IDLE') autoTimer = setTimeout(startAutoRotate, 4000);
-    }
-    controls.addEventListener('start', stopAutoRotate);
-    controls.addEventListener('end', scheduleAutoRotate);
+            // ─── Actions ───
+            function scramble() {
+                if (state !== "IDLE") return;
+                state = "ANIMATING";
+                setButtonsDisabled(true);
+                setStatus("Scrambling");
 
-    // ─── Lights ───
-    scene.add(new THREE.AmbientLight(0xaaaaff, 0.25));
-    const key = new THREE.DirectionalLight(0xfff5e6, 4.5);
-    key.position.set(6, 10, 7); scene.add(key);
-    const fill = new THREE.DirectionalLight(0x8888ff, 1.2);
-    fill.position.set(-5, 3, 5); scene.add(fill);
-    const rim = new THREE.DirectionalLight(0x6688ff, 0.7);
-    rim.position.set(-3, -6, -5); scene.add(rim);
+                const len = parseInt(
+                    document.getElementById("scramble-length").value,
+                );
+                let last = "";
+                const moves = [];
+                for (let i = 0; i < len; i++) {
+                    let f = NAMES[Math.floor(Math.random() * NAMES.length)];
+                    while (f === last)
+                        f = NAMES[Math.floor(Math.random() * NAMES.length)];
+                    last = f;
+                    moves.push({ face: f, dir: Math.random() < 0.5 ? 1 : -1 });
+                }
 
-    // ─── Theme ───
-    function setTheme(dark) {
-      isDark = dark;
-      document.body.classList.toggle('light', !dark);
-      scene.background = new THREE.Color(dark ? SCENE_BG.dark : SCENE_BG.light);
-      document.getElementById('theme-toggle').querySelector('.thumb').textContent = dark ? '\u2600' : '\u263E';
-      localStorage.setItem('cube-theme', dark ? 'dark' : 'light');
-    }
-    document.getElementById('theme-toggle').addEventListener('click', () => setTheme(!isDark));
-    if (localStorage.getItem('cube-theme') === 'light') setTheme(false);
+                currentScramble = moves.map((m) =>
+                    m.dir === 1 ? m.face : m.face + "'",
+                );
+                showScrambleNotation(currentScramble);
 
-    // ─── Cube ───
-    function makeBodyMat() {
-      return new THREE.MeshStandardMaterial({ color: COL.DARK, roughness: 0.4, metalness: 0.2 });
-    }
-    function makeStickerMat(color) {
-      return new THREE.MeshStandardMaterial({ color, roughness: 0.05, metalness: 0, emissive: color, emissiveIntensity: 0.08 });
-    }
-    function createCubie(x, y, z) {
-      const g = new THREE.Group();
-      g.position.set(x, y, z);
-      const body = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.94, 0.94), makeBodyMat());
-      g.add(body);
-      const sGeo = new THREE.PlaneGeometry(0.78, 0.78);
-      const off = 0.471;
-      const faces = [
-        { p: [ off,0,0], r: [0, Math.PI/2,0], c: COL.R, show: x===1 },
-        { p: [-off,0,0], r: [0,-Math.PI/2,0], c: COL.O, show: x===-1 },
-        { p: [0, off,0], r: [-Math.PI/2,0,0], c: COL.W, show: y===1 },
-        { p: [0,-off,0], r: [ Math.PI/2,0,0], c: COL.Y, show: y===-1 },
-        { p: [0,0, off], r: [0,0,0],           c: COL.G, show: z===1 },
-        { p: [0,0,-off], r: [0, Math.PI,0],    c: COL.B, show: z===-1 },
-      ];
-      for (const f of faces) {
-        if (!f.show) continue;
-        const m = new THREE.Mesh(sGeo, makeStickerMat(f.c));
-        m.position.set(...f.p); m.rotation.set(...f.r);
-        g.add(m);
-      }
-      return g;
-    }
-    function buildCube() {
-      while (cubies.length) scene.remove(cubies.pop());
-      for (let x = -1; x <= 1; x++)
-        for (let y = -1; y <= 1; y++)
-          for (let z = -1; z <= 1; z++) {
-            const c = createCubie(x, y, z);
-            cubies.push(c); scene.add(c);
-          }
-    }
-    buildCube();
+                totalQueued = moves.length;
+                moveHistory = [];
+                moveCount = 0;
+                lastNotation = [];
+                document
+                    .getElementById("notation-strip")
+                    .classList.remove("visible");
+                document.getElementById("solve-time").textContent = "\u2014";
+                solveStartTime = 0;
+                updateUI();
+                showProgress(true);
+                queueMoves(moves);
+                pendingAction = "scramble";
+            }
 
-    // ─── Helpers ───
-    function getCubies(check) { return cubies.filter(c => check(c.position)); }
-    function snapCubie(c) {
-      c.position.x = Math.round(c.position.x);
-      c.position.y = Math.round(c.position.y);
-      c.position.z = Math.round(c.position.z);
-      const e = new THREE.Euler().setFromQuaternion(c.quaternion);
-      const s = v => Math.round(v / (Math.PI / 2)) * (Math.PI / 2);
-      e.x = s(e.x); e.y = s(e.y); e.z = s(e.z);
-      c.quaternion.setFromEuler(e);
-    }
-    function easeInOutCubic(t) {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    }
+            function solve() {
+                if (state !== "IDLE") return;
+                if (!moveHistory.length) {
+                    setStatus("Already solved");
+                    flashStatus("#2ecc71");
+                    return;
+                }
+                state = "ANIMATING";
+                setButtonsDisabled(true);
+                setStatus("Solving");
+                solveStartTime = performance.now();
+                const rev = [...moveHistory]
+                    .reverse()
+                    .map((m) => ({ face: m.face, dir: -m.dir }));
+                totalQueued = rev.length;
+                moveHistory = [];
+                moveCount = 0;
+                lastNotation = [];
+                document
+                    .getElementById("notation-strip")
+                    .classList.remove("visible");
+                updateUI();
+                showProgress(true);
+                queueMoves(rev);
+                pendingAction = "solve";
+            }
 
-    function startAnimation(face, dir, cb) {
-      const data = FACE[face];
-      const angle = data.dir * dir * Math.PI / 2;
-      const fc = getCubies(data.check);
-      if (!fc.length) { if (cb) cb(); return; }
-      const pivot = new THREE.Group();
-      scene.add(pivot);
-      fc.forEach(c => pivot.attach(c));
-      const sq = new THREE.Quaternion();
-      const eq = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(data.axis[0], data.axis[1], data.axis[2]), angle);
-      const speed = document.getElementById('speed-slider').value / 5;
-      currentAnim = { pivot, cubies: fc, sq, eq, start: performance.now(), dur: 0.28 / speed, cb };
-    }
+            function resetCube() {
+                if (state !== "IDLE") return;
+                stopAutoRotate();
+                buildCube();
+                moveHistory = [];
+                moveCount = 0;
+                lastNotation = [];
+                currentScramble = [];
+                document
+                    .getElementById("notation-strip")
+                    .classList.remove("visible");
+                document.getElementById("scramble-notation").textContent =
+                    "\u2014";
+                document.getElementById("solve-time").textContent = "\u2014";
+                solveStartTime = 0;
+                setStatus("Ready");
+                updateUI();
+                scheduleAutoRotate();
+            }
 
-    function updateAnimation() {
-      if (!currentAnim) return;
-      const a = currentAnim;
-      const t = Math.min((performance.now() - a.start) / 1000 / a.dur, 1);
-      a.pivot.quaternion.copy(a.sq).slerp(a.eq, easeInOutCubic(t));
-      if (t >= 1) {
-        a.pivot.quaternion.copy(a.eq);
-        a.cubies.forEach(c => { scene.attach(c); snapCubie(c); });
-        scene.remove(a.pivot);
-        const cb = a.cb;
-        currentAnim = null;
-        if (cb) cb();
-      }
-    }
+            function finishAction() {
+                if (pendingAction === "scramble") {
+                    setStatus("Scrambled \u2014 tap Solve");
+                } else if (pendingAction === "solve") {
+                    const sec = (
+                        (performance.now() - solveStartTime) /
+                        1000
+                    ).toFixed(2);
+                    document.getElementById("solve-time").textContent =
+                        sec + "s";
+                    setStatus("Solved!");
+                    flashStatus("#2ecc71");
+                    triggerCelebration();
+                }
+                pendingAction = null;
+                state = "IDLE";
+                showProgress(false);
+                setButtonsDisabled(false);
+                updateUI();
+                scheduleAutoRotate();
+            }
 
-    function queueMove(face, dir) { moveQueue.push({ face, dir }); tick(); }
-    function queueMoves(arr) { arr.forEach(m => moveQueue.push(m)); tick(); }
+            function showScrambleNotation(moves) {
+                const el = document.getElementById("scramble-notation");
+                if (!moves.length) {
+                    el.textContent = "\u2014";
+                    return;
+                }
+                const groups = [];
+                for (let i = 0; i < moves.length; i += 5)
+                    groups.push(moves.slice(i, i + 5).join(" "));
+                el.innerHTML = groups.join("<br>");
+            }
 
-    function tick() {
-      if (isAnimating || !moveQueue.length) {
-        if (!isAnimating && !moveQueue.length && state === 'ANIMATING') finishAction();
-        return;
-      }
-      isAnimating = true;
-      const m = moveQueue.shift();
-      moveHistory.push({ face: m.face, dir: m.dir });
-      moveCount++;
-      updateUI();
-      updateProgress();
-      addNotation(m.face, m.dir);
-      startAnimation(m.face, m.dir, () => { isAnimating = false; tick(); });
-    }
+            // ─── Celebration ───
+            let particles = [],
+                raf = null;
+            function triggerCelebration() {
+                const c = document.getElementById("celebration-canvas");
+                const ctx = c.getContext("2d");
+                c.width = window.innerWidth;
+                c.height = window.innerHeight;
+                c.classList.add("active");
+                const colors = [
+                    "#667eea",
+                    "#764ba2",
+                    "#2ecc71",
+                    "#e05252",
+                    "#f1c40f",
+                    "#e67e22",
+                ];
+                particles = [];
+                for (let i = 0; i < 50; i++) {
+                    particles.push({
+                        x: c.width / 2 + (Math.random() - 0.5) * 60,
+                        y: c.height / 2,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: -Math.random() * 12 - 3,
+                        s: 3 + Math.random() * 5,
+                        col: colors[Math.floor(Math.random() * colors.length)],
+                        life: 1,
+                        decay: 0.008 + Math.random() * 0.012,
+                        rot: Math.random() * Math.PI * 2,
+                        rv: (Math.random() - 0.5) * 0.12,
+                    });
+                }
+                if (raf) cancelAnimationFrame(raf);
+                let elapsed = 0;
+                function draw() {
+                    elapsed += 16;
+                    ctx.clearRect(0, 0, c.width, c.height);
+                    let alive = false;
+                    for (const p of particles) {
+                        if (p.life <= 0) continue;
+                        alive = true;
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.3;
+                        p.life -= p.decay;
+                        p.rot += p.rv;
+                        ctx.save();
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate(p.rot);
+                        ctx.globalAlpha = Math.max(0, p.life);
+                        ctx.fillStyle = p.col;
+                        ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6);
+                        ctx.restore();
+                    }
+                    if (alive && elapsed < 4000)
+                        raf = requestAnimationFrame(draw);
+                    else {
+                        c.classList.remove("active");
+                        ctx.clearRect(0, 0, c.width, c.height);
+                        particles = [];
+                    }
+                }
+                draw();
+            }
 
-    // ─── Actions ───
-    function scramble() {
-      if (state !== 'IDLE') return;
-      state = 'ANIMATING';
-      setButtonsDisabled(true);
-      setStatus('Scrambling');
+            function addNotation(face, dir) {
+                const label = dir === 1 ? face : face + "'";
+                lastNotation.push(label);
+                if (lastNotation.length > 8) lastNotation.shift();
+                const strip = document.getElementById("notation-strip");
+                strip.classList.add("visible");
+                strip.innerHTML = lastNotation
+                    .map(
+                        (n, i) =>
+                            `<span class="nt ${i === lastNotation.length - 1 ? "live" : ""}">${n}</span>`,
+                    )
+                    .join("");
+            }
 
-      const len = parseInt(document.getElementById('scramble-length').value);
-      let last = '';
-      const moves = [];
-      for (let i = 0; i < len; i++) {
-        let f = NAMES[Math.floor(Math.random() * NAMES.length)];
-        while (f === last) f = NAMES[Math.floor(Math.random() * NAMES.length)];
-        last = f;
-        moves.push({ face: f, dir: Math.random() < 0.5 ? 1 : -1 });
-      }
+            function showProgress(v) {
+                document
+                    .getElementById("progress-wrap")
+                    .classList.toggle("visible", v);
+            }
+            function updateProgress() {
+                const pct = Math.min(
+                    100,
+                    (moveCount / (totalQueued || 1)) * 100,
+                );
+                document.getElementById("progress-fill").style.width =
+                    pct + "%";
+                document.getElementById("progress-label").textContent =
+                    moveCount + "/" + totalQueued;
+            }
 
-      currentScramble = moves.map(m => m.dir === 1 ? m.face : m.face + "'");
-      showScrambleNotation(currentScramble);
+            // ─── UI ───
+            const moveCountEl = document.getElementById("move-count");
+            const statusEl = document.getElementById("status-text");
+            const btn = {
+                scramble: document.getElementById("btn-scramble"),
+                solve: document.getElementById("btn-solve"),
+                reset: document.getElementById("btn-reset"),
+            };
+            let flashTimer = null;
 
-      totalQueued = moves.length;
-      moveHistory = [];
-      moveCount = 0;
-      lastNotation = [];
-      document.getElementById('notation-strip').classList.remove('visible');
-      document.getElementById('solve-time').textContent = '\u2014';
-      solveStartTime = 0;
-      updateUI();
-      showProgress(true);
-      queueMoves(moves);
-      pendingAction = 'scramble';
-    }
+            function updateUI() {
+                moveCountEl.textContent = moveCount;
+            }
+            function setStatus(msg) {
+                statusEl.textContent = msg;
+                statusEl.style.color = "";
+            }
+            function flashStatus(color) {
+                statusEl.style.color = color;
+                clearTimeout(flashTimer);
+                flashTimer = setTimeout(() => {
+                    statusEl.style.color = "";
+                }, 2000);
+            }
+            function setButtonsDisabled(v) {
+                btn.scramble.disabled = v;
+                btn.solve.disabled = v;
+                document
+                    .querySelectorAll(".fb")
+                    .forEach((el) => (el.disabled = v));
+            }
 
-    function solve() {
-      if (state !== 'IDLE') return;
-      if (!moveHistory.length) { setStatus('Already solved'); flashStatus('#2ecc71'); return; }
-      state = 'ANIMATING';
-      setButtonsDisabled(true);
-      setStatus('Solving');
-      solveStartTime = performance.now();
-      const rev = [...moveHistory].reverse().map(m => ({ face: m.face, dir: -m.dir }));
-      totalQueued = rev.length;
-      moveHistory = [];
-      moveCount = 0;
-      lastNotation = [];
-      document.getElementById('notation-strip').classList.remove('visible');
-      updateUI();
-      showProgress(true);
-      queueMoves(rev);
-      pendingAction = 'solve';
-    }
+            document.querySelectorAll("[data-face]").forEach((el) => {
+                el.addEventListener("click", () => {
+                    if (state !== "IDLE") return;
+                    stopAutoRotate();
+                    queueMove(el.dataset.face, parseInt(el.dataset.dir));
+                    scheduleAutoRotate();
+                });
+            });
+            btn.scramble.addEventListener("click", scramble);
+            btn.solve.addEventListener("click", solve);
+            btn.reset.addEventListener("click", resetCube);
 
-    function resetCube() {
-      if (state !== 'IDLE') return;
-      stopAutoRotate();
-      buildCube();
-      moveHistory = [];
-      moveCount = 0;
-      lastNotation = [];
-      currentScramble = [];
-      document.getElementById('notation-strip').classList.remove('visible');
-      document.getElementById('scramble-notation').textContent = '\u2014';
-      document.getElementById('solve-time').textContent = '\u2014';
-      solveStartTime = 0;
-      setStatus('Ready');
-      updateUI();
-      scheduleAutoRotate();
-    }
+            // ─── Controls Toggle ───
+            const sidebar = document.querySelector(".sidebar");
+            const controlsToggle = document.getElementById("controls-toggle");
+            const toggleLabel = document.getElementById("toggle-label");
+            const sidebarBackdrop = document.getElementById("sidebar-backdrop");
 
-    function finishAction() {
-      if (pendingAction === 'scramble') {
-        setStatus('Scrambled \u2014 tap Solve');
-      } else if (pendingAction === 'solve') {
-        const sec = ((performance.now() - solveStartTime) / 1000).toFixed(2);
-        document.getElementById('solve-time').textContent = sec + 's';
-        setStatus('Solved!');
-        flashStatus('#2ecc71');
-        triggerCelebration();
-      }
-      pendingAction = null;
-      state = 'IDLE';
-      showProgress(false);
-      setButtonsDisabled(false);
-      updateUI();
-      scheduleAutoRotate();
-    }
+            function toggleSidebar(show) {
+                const isCollapsed = sidebar.classList.toggle(
+                    "collapsed",
+                    show !== undefined ? !show : undefined,
+                );
+                toggleLabel.textContent = isCollapsed
+                    ? "Show Controls"
+                    : "Hide Controls";
+                sidebarBackdrop.classList.toggle("visible", !isCollapsed);
+            }
 
-    function showScrambleNotation(moves) {
-      const el = document.getElementById('scramble-notation');
-      if (!moves.length) { el.textContent = '\u2014'; return; }
-      const groups = [];
-      for (let i = 0; i < moves.length; i += 5) groups.push(moves.slice(i, i + 5).join(' '));
-      el.innerHTML = groups.join('<br>');
-    }
+            controlsToggle.addEventListener("click", () => toggleSidebar());
+            sidebarBackdrop.addEventListener("click", () =>
+                toggleSidebar(false),
+            );
 
-    // ─── Celebration ───
-    let particles = [], raf = null;
-    function triggerCelebration() {
-      const c = document.getElementById('celebration-canvas');
-      const ctx = c.getContext('2d');
-      c.width = window.innerWidth; c.height = window.innerHeight;
-      c.classList.add('active');
-      const colors = ['#667eea','#764ba2','#2ecc71','#e05252','#f1c40f','#e67e22'];
-      particles = [];
-      for (let i = 0; i < 50; i++) {
-        particles.push({
-          x: c.width/2+(Math.random()-0.5)*60, y: c.height/2,
-          vx: (Math.random()-0.5)*10, vy: -Math.random()*12-3,
-          s: 3+Math.random()*5, col: colors[Math.floor(Math.random()*colors.length)],
-          life: 1, decay: 0.008+Math.random()*0.012,
-          rot: Math.random()*Math.PI*2, rv: (Math.random()-0.5)*0.12,
-        });
-      }
-      if (raf) cancelAnimationFrame(raf);
-      let elapsed = 0;
-      function draw() {
-        elapsed += 16;
-        ctx.clearRect(0,0,c.width,c.height);
-        let alive = false;
-        for (const p of particles) {
-          if (p.life <= 0) continue;
-          alive = true;
-          p.x += p.vx; p.y += p.vy; p.vy += 0.3;
-          p.life -= p.decay; p.rot += p.rv;
-          ctx.save();
-          ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-          ctx.globalAlpha = Math.max(0,p.life);
-          ctx.fillStyle = p.col;
-          ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);
-          ctx.restore();
-        }
-        if (alive && elapsed < 4000) raf = requestAnimationFrame(draw);
-        else { c.classList.remove('active'); ctx.clearRect(0,0,c.width,c.height); particles = []; }
-      }
-      draw();
-    }
+            // Auto-collapse sidebar on mobile
+            function checkMobile() {
+                if (
+                    window.innerWidth < 640 &&
+                    !sidebar.classList.contains("collapsed")
+                ) {
+                    toggleSidebar(false);
+                }
+            }
+            checkMobile();
+            window.addEventListener("resize", () => {
+                if (window.innerWidth >= 640) {
+                    sidebarBackdrop.classList.remove("visible");
+                } else if (
+                    window.innerWidth < 640 &&
+                    !sidebar.classList.contains("collapsed")
+                ) {
+                    sidebarBackdrop.classList.add("visible");
+                }
+            });
 
-    function addNotation(face, dir) {
-      const label = dir === 1 ? face : face + "'";
-      lastNotation.push(label);
-      if (lastNotation.length > 8) lastNotation.shift();
-      const strip = document.getElementById('notation-strip');
-      strip.classList.add('visible');
-      strip.innerHTML = lastNotation.map((n,i) => `<span class="nt ${i===lastNotation.length-1?'live':''}">${n}</span>`).join('');
-    }
+            document.addEventListener("keydown", (e) => {
+                if (
+                    e.target.tagName === "INPUT" ||
+                    e.target.tagName === "SELECT"
+                )
+                    return;
+                switch (e.key) {
+                    case "s":
+                    case "S":
+                        scramble();
+                        break;
+                    case "Enter":
+                        solve();
+                        break;
+                    case "r":
+                    case "R":
+                        resetCube();
+                        break;
+                }
+            });
 
-    function showProgress(v) { document.getElementById('progress-wrap').classList.toggle('visible', v); }
-    function updateProgress() {
-      const pct = Math.min(100, (moveCount / (totalQueued || 1)) * 100);
-      document.getElementById('progress-fill').style.width = pct + '%';
-      document.getElementById('progress-label').textContent = moveCount + '/' + totalQueued;
-    }
+            function onResize() {
+                const w = container.clientWidth,
+                    h = container.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+                const c = document.getElementById("celebration-canvas");
+                c.width = w;
+                c.height = h;
+            }
+            window.addEventListener("resize", onResize);
 
-    // ─── UI ───
-    const moveCountEl = document.getElementById('move-count');
-    const statusEl = document.getElementById('status-text');
-    const btn = {
-      scramble: document.getElementById('btn-scramble'),
-      solve: document.getElementById('btn-solve'),
-      reset: document.getElementById('btn-reset'),
-    };
-    let flashTimer = null;
+            function animate() {
+                requestAnimationFrame(animate);
+                updateAnimation();
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
 
-    function updateUI() { moveCountEl.textContent = moveCount; }
-    function setStatus(msg) { statusEl.textContent = msg; statusEl.style.color = ''; }
-    function flashStatus(color) {
-      statusEl.style.color = color;
-      clearTimeout(flashTimer);
-      flashTimer = setTimeout(() => { statusEl.style.color = ''; }, 2000);
-    }
-    function setButtonsDisabled(v) {
-      btn.scramble.disabled = v;
-      btn.solve.disabled = v;
-      document.querySelectorAll('.fb').forEach(el => el.disabled = v);
-    }
-
-    document.querySelectorAll('[data-face]').forEach(el => {
-      el.addEventListener('click', () => {
-        if (state !== 'IDLE') return;
-        stopAutoRotate();
-        queueMove(el.dataset.face, parseInt(el.dataset.dir));
-        scheduleAutoRotate();
-      });
-    });
-    btn.scramble.addEventListener('click', scramble);
-    btn.solve.addEventListener('click', solve);
-    btn.reset.addEventListener('click', resetCube);
-
-    document.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-      switch (e.key) {
-        case 's': case 'S': scramble(); break;
-        case 'Enter': solve(); break;
-        case 'r': case 'R': resetCube(); break;
-      }
-    });
-
-    function onResize() {
-      const w = container.clientWidth, h = container.clientHeight;
-      camera.aspect = w / h; camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-      const c = document.getElementById('celebration-canvas');
-      c.width = w; c.height = h;
-    }
-    window.addEventListener('resize', onResize);
-
-    function animate() {
-      requestAnimationFrame(animate);
-      updateAnimation();
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    setStatus('Ready');
-    updateUI();
-    scheduleAutoRotate();
-  </script>
-</body>
+            setStatus("Ready");
+            updateUI();
+            scheduleAutoRotate();
+        </script>
+    </body>
 </html>
