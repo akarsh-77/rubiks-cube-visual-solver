@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CubeSolver</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23667eea%22/><text x=%2250%22 y=%2268%22 text-anchor=%22middle%22 font-size=%2260%22 fill=%22white%22>&#9674;</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --text: #ffffff;
+      --glass: rgba(24,24,30,.72);
+      --glass-border: rgba(255,255,255,.08);
+      --label: rgba(255,255,255,.2);
+      --muted: rgba(255,255,255,.45);
+      --dim: rgba(255,255,255,.3);
+      --btn-glass: rgba(255,255,255,.06);
+      --btn-glass-hover: rgba(255,255,255,.11);
+      --btn-border: rgba(255,255,255,.05);
+      --btn-text: rgba(255,255,255,.5);
+      --btn-text-hover: rgba(255,255,255,.8);
+      --fb-glass: rgba(255,255,255,.035);
+      --fb-glass-hover: rgba(255,255,255,.08);
+      --fb-border: rgba(255,255,255,.035);
+      --fb-text: rgba(255,255,255,.28);
+      --fb-text-hover: rgba(255,255,255,.5);
+      --track: rgba(255,255,255,.05);
+      --nt-glass: rgba(255,255,255,.035);
+      --nt-text: rgba(255,255,255,.22);
+      --nt-live-glass: rgba(102,126,234,.1);
+      --nt-live-text: rgba(102,126,234,.65);
+      --select-bg: rgba(255,255,255,.04);
+      --select-border: rgba(255,255,255,.05);
+      --select-text: rgba(255,255,255,.45);
+      --slider-bg: rgba(255,255,255,.07);
+      --scramble-clr: rgba(255,255,255,.2);
+      --solve-clr: rgba(255,255,255,.55);
+      --scene: #121214;
+      --logo-clr: rgba(255,255,255,.55);
+      --divider: rgba(255,255,255,.04);
+      --accent: #667eea;
+      --accent-glow: rgba(102,126,234,.25);
+    }
+
+    body.light {
+      --bg: #f5f5f7;
+      --text: #1d1d1f;
+      --glass: rgba(255,255,255,.78);
+      --glass-border: rgba(0,0,0,.07);
+      --label: rgba(0,0,0,.25);
+      --muted: rgba(0,0,0,.45);
+      --dim: rgba(0,0,0,.35);
+      --btn-glass: rgba(0,0,0,.04);
+      --btn-glass-hover: rgba(0,0,0,.08);
+      --btn-border: rgba(0,0,0,.05);
+      --btn-text: rgba(0,0,0,.45);
+      --btn-text-hover: rgba(0,0,0,.7);
+      --fb-glass: rgba(0,0,0,.035);
+      --fb-glass-hover: rgba(0,0,0,.07);
+      --fb-border: rgba(0,0,0,.045);
+      --fb-text: rgba(0,0,0,.28);
+      --fb-text-hover: rgba(0,0,0,.5);
+      --track: rgba(0,0,0,.05);
+      --nt-glass: rgba(0,0,0,.035);
+      --nt-text: rgba(0,0,0,.25);
+      --nt-live-glass: rgba(102,126,234,.1);
+      --nt-live-text: rgba(102,126,234,.65);
+      --select-bg: rgba(0,0,0,.035);
+      --select-border: rgba(0,0,0,.07);
+      --select-text: rgba(0,0,0,.45);
+      --slider-bg: rgba(0,0,0,.07);
+      --scramble-clr: rgba(0,0,0,.28);
+      --solve-clr: rgba(0,0,0,.5);
+      --scene: #e8e8ea;
+      --logo-clr: rgba(0,0,0,.55);
+      --divider: rgba(0,0,0,.04);
+    }
+
+    body {
+      font-family: -apple-system, 'Inter', 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      transition: background .35s, color .35s;
+    }
+
+    #canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* ─── Top Bar ─── */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .top-bar > * { pointer-events: auto; }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-icon {
+      width: 22px; height: 22px;
+      border-radius: 5px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 600; color: #fff;
+    }
+    .logo-text {
+      font-size: .85rem; font-weight: 500;
+      color: var(--logo-clr); letter-spacing: -.2px;
+      transition: color .35s;
+    }
+
+    /* ─── Theme Toggle ─── */
+    .theme-toggle {
+      background: var(--btn-glass);
+      border: .5px solid var(--btn-border);
+      border-radius: 22px;
+      padding: 3px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all .25s;
+      width: 54px; height: 28px;
+      position: relative;
+    }
+    .theme-toggle:hover { background: var(--btn-glass-hover); }
+    .theme-toggle .thumb {
+      position: absolute;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #764ba2);
+      transition: all .3s cubic-bezier(.4,0,.2,1);
+      z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .6rem; color: #fff;
+      left: 3px;
+    }
+    body.light .theme-toggle .thumb { left: 29px; }
+    .theme-toggle .icon-bg {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 0 6px;
+      font-size: .6rem; color: var(--label);
+    }
+
+    /* ─── Right Sidebar ─── */
+    .sidebar {
+      position: fixed; right: 20px; top: 50%;
+      transform: translateY(-50%);
+      z-index: 10; pointer-events: none;
+      width: 234px;
+      max-height: calc(100vh - 80px);
+    }
+    .sidebar > * { pointer-events: auto; }
+
+    .sidebar-glass {
+      background: var(--glass);
+      backdrop-filter: blur(48px) saturate(1.6);
+      -webkit-backdrop-filter: blur(48px) saturate(1.6);
+      border: .5px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 12px 56px rgba(0,0,0,.55);
+      transition: background .35s, border-color .35s;
+      max-height: inherit;
+      overflow-y: auto;
+    }
+    .sidebar-glass::-webkit-scrollbar { width: 3px; }
+    .sidebar-glass::-webkit-scrollbar-thumb { background: var(--track); border-radius: 2px; }
+
+    .sb-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .sb-row.sb-between { justify-content: space-between; }
+    .sb-row.sb-center { align-items: center; }
+    .sb-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex: 1;
+      min-width: 0;
+    }
+    .sb-label {
+      font-size: .48rem;
+      font-weight: 600;
+      color: var(--label);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: color .35s;
+    }
+    .sb-value {
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--muted);
+      transition: color .35s;
+    }
+    .sb-value.num {
+      color: var(--text);
+      font-weight: 600;
+      font-size: .9rem;
+    }
+    .sb-value.time {
+      font-family: 'SF Mono', 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--solve-clr);
+      transition: color .35s;
+    }
+    #status-text {
+      font-size: .78rem;
+      color: var(--dim);
+      font-weight: 400;
+      transition: color .35s;
+    }
+    .sb-divider {
+      height: 1px;
+      background: var(--divider);
+      margin: 2px 0;
+      transition: background .35s;
+    }
+
+    /* progress */
+    .progress-wrap {
+      display: none;
+      flex-direction: column;
+      gap: 3px;
+      margin: -2px 0;
+    }
+    .progress-wrap.visible { display: flex; }
+    .progress-header {
+      display: flex; justify-content: space-between;
+      font-size: .58rem; color: var(--muted);
+      transition: color .35s;
+    }
+    .track {
+      width: 100%; height: 2px;
+      background: var(--track);
+      border-radius: 2px; overflow: hidden;
+      transition: background .35s;
+    }
+    .fill {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--accent), #764ba2);
+      border-radius: 2px;
+      transition: width .12s;
+    }
+
+    /* notation */
+    .notation-strip {
+      display: none;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .notation-strip.visible { display: flex; }
+    .nt {
+      font-family: 'SF Mono', 'JetBrains Mono', monospace;
+      font-size: .58rem;
+      font-weight: 500;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background: var(--nt-glass);
+      color: var(--nt-text);
+      transition: background .35s, color .35s;
+    }
+    .nt.live {
+      background: var(--nt-live-glass);
+      color: var(--nt-live-text);
+    }
+
+    #scramble-notation {
+      font-family: 'SF Mono', 'JetBrains Mono', monospace;
+      font-size: .54rem;
+      color: var(--scramble-clr);
+      line-height: 1.55;
+      word-break: break-all;
+      transition: color .35s;
+      min-height: .9em;
+    }
+
+    /* action buttons */
+    .sb-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .sb-actions .btn { flex: 1; text-align: center; }
+
+    .btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 16px;
+      font-size: .7rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+      letter-spacing: -.1px;
+      color: var(--btn-text);
+      background: var(--btn-glass);
+      border: .5px solid var(--btn-border);
+    }
+    .btn:hover:not(:disabled) {
+      color: var(--btn-text-hover);
+      background: var(--btn-glass-hover);
+      transform: scale(1.02);
+    }
+    .btn:active:not(:disabled) { transform: scale(.97); }
+    .btn:disabled { opacity: .18; cursor: not-allowed; }
+    .btn .hint {
+      font-size: .52rem; opacity: .2; margin-left: 2px; font-weight: 400;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #f05a5a, #c0392b);
+      color: #fff; border: none;
+    }
+    .btn-danger:hover:not(:disabled) { filter: brightness(1.1); color: #fff; }
+    .btn-success {
+      background: linear-gradient(135deg, #34d978, #219a52);
+      color: #fff; border: none;
+    }
+    .btn-success:hover:not(:disabled) { filter: brightness(1.1); color: #fff; }
+
+    /* face buttons */
+    .sb-faces {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+    .fb {
+      width: 26px; height: 22px;
+      border: none;
+      border-radius: 5px;
+      font-family: 'SF Mono', 'JetBrains Mono', monospace;
+      font-size: .62rem; font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      background: var(--fb-glass);
+      color: var(--fb-text);
+      border: .5px solid var(--fb-border);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fb:hover:not(:disabled) {
+      background: var(--fb-glass-hover);
+      color: var(--fb-text-hover);
+    }
+    .fb:disabled { opacity: .16; cursor: not-allowed; }
+    .fb.ccw::after { content: "'"; font-size: .45rem; vertical-align: super; }
+
+    /* bottom row */
+    .sb-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .sl-group {
+      display: flex; align-items: center; gap: 3px;
+      font-size: .55rem; color: var(--label);
+      transition: color .35s;
+    }
+    .sl-group select {
+      background: var(--select-bg);
+      border: .5px solid var(--select-border);
+      border-radius: 4px;
+      color: var(--select-text);
+      padding: 1px 4px;
+      font-size: .55rem;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      transition: background .35s, border-color .35s, color .35s;
+    }
+    .sl-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+
+    .speed {
+      display: flex; align-items: center; gap: 4px;
+      font-size: .5rem; color: var(--label);
+      transition: color .35s;
+    }
+    .speed input[type="range"] {
+      width: 50px; height: 2px;
+      -webkit-appearance: none; appearance: none;
+      background: var(--slider-bg);
+      border-radius: 2px; outline: none;
+      transition: background .35s;
+    }
+    .speed input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #764ba2);
+      cursor: pointer; border: none;
+    }
+    .speed input[type="range"]::-moz-range-thumb {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #764ba2);
+      cursor: pointer; border: none;
+    }
+
+    #celebration-canvas {
+      position: fixed; inset: 0;
+      z-index: 5; pointer-events: none;
+      opacity: 0; transition: opacity .5s;
+    }
+    #celebration-canvas.active { opacity: 1; }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 210px; right: 12px; }
+      .sidebar-glass { padding: 14px 16px; gap: 8px; }
+    }
+    @media (max-width: 640px) {
+      .top-bar { padding: 14px 16px; }
+      .logo-text { font-size: .8rem; }
+      .sidebar { width: 175px; right: 8px; }
+      .sidebar-glass { padding: 12px 12px; gap: 6px; border-radius: 14px; }
+      .sb-value { font-size: .75rem; }
+      .sb-value.num { font-size: .82rem; }
+      #status-text { font-size: .72rem; }
+      .nt { font-size: .52rem; }
+      .sb-actions .btn { font-size: .65rem; padding: 4px 6px; }
+      .fb { width: 22px; height: 20px; font-size: .55rem; }
+      .btn .hint { display: none; }
+      .speed input[type="range"] { width: 34px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="canvas"></div>
+  <canvas id="celebration-canvas"></canvas>
+
+  <!-- ─── Top Bar ─── -->
+  <div class="top-bar">
+    <div class="logo">
+      <div class="logo-icon">&#9674;</div>
+      <div class="logo-text">CubeSolver</div>
+    </div>
+    <div class="theme-toggle" id="theme-toggle" role="button" tabindex="0" aria-label="Toggle theme">
+      <span class="thumb">&#9788;</span>
+      <span class="icon-bg"><span>&#9788;</span><span>&#9790;</span></span>
+    </div>
+  </div>
+
+  <!-- ─── Sidebar ─── -->
+  <div class="sidebar">
+    <div class="sidebar-glass">
+
+      <!-- Status + Moves + Time -->
+      <div class="sb-row sb-between">
+        <div class="sb-group">
+          <div class="sb-label">Status</div>
+          <div id="status-text">Ready</div>
+        </div>
+        <div class="sb-group" style="flex:0;min-width:50px;text-align:right">
+          <div class="sb-label">Moves</div>
+          <div class="sb-value num" id="move-count">0</div>
+        </div>
+      </div>
+
+      <div class="sb-row sb-between">
+        <div class="sb-group">
+          <div class="sb-label">Time</div>
+          <div class="sb-value time" id="solve-time">&mdash;</div>
+        </div>
+        <div class="progress-wrap" id="progress-wrap" style="flex:1;max-width:120px">
+          <div class="track" style="margin-top:12px"><div class="fill" id="progress-fill"></div></div>
+          <div class="progress-header">
+            <span>Progress</span>
+            <span id="progress-label">0/0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Last Moves -->
+      <div class="sb-group">
+        <div class="sb-label">Last Moves</div>
+        <div class="notation-strip" id="notation-strip"></div>
+      </div>
+
+      <!-- Scramble -->
+      <div class="sb-group">
+        <div class="sb-label">Scramble</div>
+        <div id="scramble-notation">&mdash;</div>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <!-- Action buttons -->
+      <div class="sb-actions">
+        <button class="btn btn-danger" id="btn-scramble">Scramble <span class="hint">S</span></button>
+        <button class="btn btn-success" id="btn-solve">Solve <span class="hint">&#8626;</span></button>
+        <button class="btn" id="btn-reset">Reset <span class="hint">R</span></button>
+      </div>
+
+      <!-- Face buttons -->
+      <div class="sb-faces">
+        <button class="fb" data-face="U" data-dir="1">U</button>
+        <button class="fb ccw" data-face="U" data-dir="-1">U</button>
+        <button class="fb" data-face="R" data-dir="1">R</button>
+        <button class="fb ccw" data-face="R" data-dir="-1">R</button>
+        <button class="fb" data-face="F" data-dir="1">F</button>
+        <button class="fb ccw" data-face="F" data-dir="-1">F</button>
+        <button class="fb" data-face="D" data-dir="1">D</button>
+        <button class="fb ccw" data-face="D" data-dir="-1">D</button>
+        <button class="fb" data-face="L" data-dir="1">L</button>
+        <button class="fb ccw" data-face="L" data-dir="-1">L</button>
+        <button class="fb" data-face="B" data-dir="1">B</button>
+        <button class="fb ccw" data-face="B" data-dir="-1">B</button>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <!-- Bottom -->
+      <div class="sb-bottom">
+        <div class="sl-group">
+          Scramble
+          <select id="scramble-length">
+            <option value="12">12</option>
+            <option value="20" selected>20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
+          </select>
+        </div>
+        <div class="speed">
+          <span>Slow</span>
+          <input type="range" id="speed-slider" min="1" max="10" value="5" />
+          <span>Fast</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const COL = {
+      R: 0xFF2040, O: 0xFF8020, W: 0xFFFFFF,
+      Y: 0xFFE000, G: 0x00E060, B: 0x3080FF,
+      DARK: 0x080808,
+    };
+
+    const FACE = {
+      R: { axis: [1,0,0], dir:  1, check: p => p.x > 0.5 },
+      L: { axis: [1,0,0], dir: -1, check: p => p.x < -0.5 },
+      U: { axis: [0,1,0], dir:  1, check: p => p.y > 0.5 },
+      D: { axis: [0,1,0], dir:  1, check: p => p.y < -0.5 },
+      F: { axis: [0,0,1], dir: -1, check: p => p.z > 0.5 },
+      B: { axis: [0,0,1], dir:  1, check: p => p.z < -0.5 },
+    };
+
+    const NAMES = ['R','L','U','D','F','B'];
+    const SCENE_BG = { dark: 0x121214, light: 0xe8e8ea };
+
+    const cubies = [];
+    let moveHistory = [], moveCount = 0, totalQueued = 0;
+    let isAnimating = false, state = 'IDLE', pendingAction = null;
+    const moveQueue = [];
+    let currentAnim = null, lastNotation = [], currentScramble = [], solveStartTime = 0;
+    let isDark = true;
+
+    // ─── Three.js ───
+    const container = document.getElementById('canvas');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(SCENE_BG.dark);
+
+    const camera = new THREE.PerspectiveCamera(36, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(5.5, 4.5, 5.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 2.2;
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.07;
+    controls.minDistance = 4;
+    controls.maxDistance = 12;
+    controls.target.set(0, 0, 0);
+    controls.autoRotate = false;
+    controls.autoRotateSpeed = 1.8;
+
+    let autoTimer = null;
+    function startAutoRotate() {
+      if (state !== 'IDLE') { controls.autoRotate = false; return; }
+      controls.autoRotate = true;
+    }
+    function stopAutoRotate() {
+      controls.autoRotate = false;
+      clearTimeout(autoTimer);
+    }
+    function scheduleAutoRotate() {
+      clearTimeout(autoTimer);
+      controls.autoRotate = false;
+      if (state === 'IDLE') autoTimer = setTimeout(startAutoRotate, 4000);
+    }
+    controls.addEventListener('start', stopAutoRotate);
+    controls.addEventListener('end', scheduleAutoRotate);
+
+    // ─── Lights ───
+    scene.add(new THREE.AmbientLight(0xaaaaff, 0.25));
+    const key = new THREE.DirectionalLight(0xfff5e6, 4.5);
+    key.position.set(6, 10, 7); scene.add(key);
+    const fill = new THREE.DirectionalLight(0x8888ff, 1.2);
+    fill.position.set(-5, 3, 5); scene.add(fill);
+    const rim = new THREE.DirectionalLight(0x6688ff, 0.7);
+    rim.position.set(-3, -6, -5); scene.add(rim);
+
+    // ─── Theme ───
+    function setTheme(dark) {
+      isDark = dark;
+      document.body.classList.toggle('light', !dark);
+      scene.background = new THREE.Color(dark ? SCENE_BG.dark : SCENE_BG.light);
+      document.getElementById('theme-toggle').querySelector('.thumb').textContent = dark ? '\u2600' : '\u263E';
+      localStorage.setItem('cube-theme', dark ? 'dark' : 'light');
+    }
+    document.getElementById('theme-toggle').addEventListener('click', () => setTheme(!isDark));
+    if (localStorage.getItem('cube-theme') === 'light') setTheme(false);
+
+    // ─── Cube ───
+    function makeBodyMat() {
+      return new THREE.MeshStandardMaterial({ color: COL.DARK, roughness: 0.4, metalness: 0.2 });
+    }
+    function makeStickerMat(color) {
+      return new THREE.MeshStandardMaterial({ color, roughness: 0.05, metalness: 0, emissive: color, emissiveIntensity: 0.08 });
+    }
+    function createCubie(x, y, z) {
+      const g = new THREE.Group();
+      g.position.set(x, y, z);
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.94, 0.94), makeBodyMat());
+      g.add(body);
+      const sGeo = new THREE.PlaneGeometry(0.78, 0.78);
+      const off = 0.471;
+      const faces = [
+        { p: [ off,0,0], r: [0, Math.PI/2,0], c: COL.R, show: x===1 },
+        { p: [-off,0,0], r: [0,-Math.PI/2,0], c: COL.O, show: x===-1 },
+        { p: [0, off,0], r: [-Math.PI/2,0,0], c: COL.W, show: y===1 },
+        { p: [0,-off,0], r: [ Math.PI/2,0,0], c: COL.Y, show: y===-1 },
+        { p: [0,0, off], r: [0,0,0],           c: COL.G, show: z===1 },
+        { p: [0,0,-off], r: [0, Math.PI,0],    c: COL.B, show: z===-1 },
+      ];
+      for (const f of faces) {
+        if (!f.show) continue;
+        const m = new THREE.Mesh(sGeo, makeStickerMat(f.c));
+        m.position.set(...f.p); m.rotation.set(...f.r);
+        g.add(m);
+      }
+      return g;
+    }
+    function buildCube() {
+      while (cubies.length) scene.remove(cubies.pop());
+      for (let x = -1; x <= 1; x++)
+        for (let y = -1; y <= 1; y++)
+          for (let z = -1; z <= 1; z++) {
+            const c = createCubie(x, y, z);
+            cubies.push(c); scene.add(c);
+          }
+    }
+    buildCube();
+
+    // ─── Helpers ───
+    function getCubies(check) { return cubies.filter(c => check(c.position)); }
+    function snapCubie(c) {
+      c.position.x = Math.round(c.position.x);
+      c.position.y = Math.round(c.position.y);
+      c.position.z = Math.round(c.position.z);
+      const e = new THREE.Euler().setFromQuaternion(c.quaternion);
+      const s = v => Math.round(v / (Math.PI / 2)) * (Math.PI / 2);
+      e.x = s(e.x); e.y = s(e.y); e.z = s(e.z);
+      c.quaternion.setFromEuler(e);
+    }
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function startAnimation(face, dir, cb) {
+      const data = FACE[face];
+      const angle = data.dir * dir * Math.PI / 2;
+      const fc = getCubies(data.check);
+      if (!fc.length) { if (cb) cb(); return; }
+      const pivot = new THREE.Group();
+      scene.add(pivot);
+      fc.forEach(c => pivot.attach(c));
+      const sq = new THREE.Quaternion();
+      const eq = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(data.axis[0], data.axis[1], data.axis[2]), angle);
+      const speed = document.getElementById('speed-slider').value / 5;
+      currentAnim = { pivot, cubies: fc, sq, eq, start: performance.now(), dur: 0.28 / speed, cb };
+    }
+
+    function updateAnimation() {
+      if (!currentAnim) return;
+      const a = currentAnim;
+      const t = Math.min((performance.now() - a.start) / 1000 / a.dur, 1);
+      a.pivot.quaternion.copy(a.sq).slerp(a.eq, easeInOutCubic(t));
+      if (t >= 1) {
+        a.pivot.quaternion.copy(a.eq);
+        a.cubies.forEach(c => { scene.attach(c); snapCubie(c); });
+        scene.remove(a.pivot);
+        const cb = a.cb;
+        currentAnim = null;
+        if (cb) cb();
+      }
+    }
+
+    function queueMove(face, dir) { moveQueue.push({ face, dir }); tick(); }
+    function queueMoves(arr) { arr.forEach(m => moveQueue.push(m)); tick(); }
+
+    function tick() {
+      if (isAnimating || !moveQueue.length) {
+        if (!isAnimating && !moveQueue.length && state === 'ANIMATING') finishAction();
+        return;
+      }
+      isAnimating = true;
+      const m = moveQueue.shift();
+      moveHistory.push({ face: m.face, dir: m.dir });
+      moveCount++;
+      updateUI();
+      updateProgress();
+      addNotation(m.face, m.dir);
+      startAnimation(m.face, m.dir, () => { isAnimating = false; tick(); });
+    }
+
+    // ─── Actions ───
+    function scramble() {
+      if (state !== 'IDLE') return;
+      state = 'ANIMATING';
+      setButtonsDisabled(true);
+      setStatus('Scrambling');
+
+      const len = parseInt(document.getElementById('scramble-length').value);
+      let last = '';
+      const moves = [];
+      for (let i = 0; i < len; i++) {
+        let f = NAMES[Math.floor(Math.random() * NAMES.length)];
+        while (f === last) f = NAMES[Math.floor(Math.random() * NAMES.length)];
+        last = f;
+        moves.push({ face: f, dir: Math.random() < 0.5 ? 1 : -1 });
+      }
+
+      currentScramble = moves.map(m => m.dir === 1 ? m.face : m.face + "'");
+      showScrambleNotation(currentScramble);
+
+      totalQueued = moves.length;
+      moveHistory = [];
+      moveCount = 0;
+      lastNotation = [];
+      document.getElementById('notation-strip').classList.remove('visible');
+      document.getElementById('solve-time').textContent = '\u2014';
+      solveStartTime = 0;
+      updateUI();
+      showProgress(true);
+      queueMoves(moves);
+      pendingAction = 'scramble';
+    }
+
+    function solve() {
+      if (state !== 'IDLE') return;
+      if (!moveHistory.length) { setStatus('Already solved'); flashStatus('#2ecc71'); return; }
+      state = 'ANIMATING';
+      setButtonsDisabled(true);
+      setStatus('Solving');
+      solveStartTime = performance.now();
+      const rev = [...moveHistory].reverse().map(m => ({ face: m.face, dir: -m.dir }));
+      totalQueued = rev.length;
+      moveHistory = [];
+      moveCount = 0;
+      lastNotation = [];
+      document.getElementById('notation-strip').classList.remove('visible');
+      updateUI();
+      showProgress(true);
+      queueMoves(rev);
+      pendingAction = 'solve';
+    }
+
+    function resetCube() {
+      if (state !== 'IDLE') return;
+      stopAutoRotate();
+      buildCube();
+      moveHistory = [];
+      moveCount = 0;
+      lastNotation = [];
+      currentScramble = [];
+      document.getElementById('notation-strip').classList.remove('visible');
+      document.getElementById('scramble-notation').textContent = '\u2014';
+      document.getElementById('solve-time').textContent = '\u2014';
+      solveStartTime = 0;
+      setStatus('Ready');
+      updateUI();
+      scheduleAutoRotate();
+    }
+
+    function finishAction() {
+      if (pendingAction === 'scramble') {
+        setStatus('Scrambled \u2014 tap Solve');
+      } else if (pendingAction === 'solve') {
+        const sec = ((performance.now() - solveStartTime) / 1000).toFixed(2);
+        document.getElementById('solve-time').textContent = sec + 's';
+        setStatus('Solved!');
+        flashStatus('#2ecc71');
+        triggerCelebration();
+      }
+      pendingAction = null;
+      state = 'IDLE';
+      showProgress(false);
+      setButtonsDisabled(false);
+      updateUI();
+      scheduleAutoRotate();
+    }
+
+    function showScrambleNotation(moves) {
+      const el = document.getElementById('scramble-notation');
+      if (!moves.length) { el.textContent = '\u2014'; return; }
+      const groups = [];
+      for (let i = 0; i < moves.length; i += 5) groups.push(moves.slice(i, i + 5).join(' '));
+      el.innerHTML = groups.join('<br>');
+    }
+
+    // ─── Celebration ───
+    let particles = [], raf = null;
+    function triggerCelebration() {
+      const c = document.getElementById('celebration-canvas');
+      const ctx = c.getContext('2d');
+      c.width = window.innerWidth; c.height = window.innerHeight;
+      c.classList.add('active');
+      const colors = ['#667eea','#764ba2','#2ecc71','#e05252','#f1c40f','#e67e22'];
+      particles = [];
+      for (let i = 0; i < 50; i++) {
+        particles.push({
+          x: c.width/2+(Math.random()-0.5)*60, y: c.height/2,
+          vx: (Math.random()-0.5)*10, vy: -Math.random()*12-3,
+          s: 3+Math.random()*5, col: colors[Math.floor(Math.random()*colors.length)],
+          life: 1, decay: 0.008+Math.random()*0.012,
+          rot: Math.random()*Math.PI*2, rv: (Math.random()-0.5)*0.12,
+        });
+      }
+      if (raf) cancelAnimationFrame(raf);
+      let elapsed = 0;
+      function draw() {
+        elapsed += 16;
+        ctx.clearRect(0,0,c.width,c.height);
+        let alive = false;
+        for (const p of particles) {
+          if (p.life <= 0) continue;
+          alive = true;
+          p.x += p.vx; p.y += p.vy; p.vy += 0.3;
+          p.life -= p.decay; p.rot += p.rv;
+          ctx.save();
+          ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+          ctx.globalAlpha = Math.max(0,p.life);
+          ctx.fillStyle = p.col;
+          ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);
+          ctx.restore();
+        }
+        if (alive && elapsed < 4000) raf = requestAnimationFrame(draw);
+        else { c.classList.remove('active'); ctx.clearRect(0,0,c.width,c.height); particles = []; }
+      }
+      draw();
+    }
+
+    function addNotation(face, dir) {
+      const label = dir === 1 ? face : face + "'";
+      lastNotation.push(label);
+      if (lastNotation.length > 8) lastNotation.shift();
+      const strip = document.getElementById('notation-strip');
+      strip.classList.add('visible');
+      strip.innerHTML = lastNotation.map((n,i) => `<span class="nt ${i===lastNotation.length-1?'live':''}">${n}</span>`).join('');
+    }
+
+    function showProgress(v) { document.getElementById('progress-wrap').classList.toggle('visible', v); }
+    function updateProgress() {
+      const pct = Math.min(100, (moveCount / (totalQueued || 1)) * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-label').textContent = moveCount + '/' + totalQueued;
+    }
+
+    // ─── UI ───
+    const moveCountEl = document.getElementById('move-count');
+    const statusEl = document.getElementById('status-text');
+    const btn = {
+      scramble: document.getElementById('btn-scramble'),
+      solve: document.getElementById('btn-solve'),
+      reset: document.getElementById('btn-reset'),
+    };
+    let flashTimer = null;
+
+    function updateUI() { moveCountEl.textContent = moveCount; }
+    function setStatus(msg) { statusEl.textContent = msg; statusEl.style.color = ''; }
+    function flashStatus(color) {
+      statusEl.style.color = color;
+      clearTimeout(flashTimer);
+      flashTimer = setTimeout(() => { statusEl.style.color = ''; }, 2000);
+    }
+    function setButtonsDisabled(v) {
+      btn.scramble.disabled = v;
+      btn.solve.disabled = v;
+      document.querySelectorAll('.fb').forEach(el => el.disabled = v);
+    }
+
+    document.querySelectorAll('[data-face]').forEach(el => {
+      el.addEventListener('click', () => {
+        if (state !== 'IDLE') return;
+        stopAutoRotate();
+        queueMove(el.dataset.face, parseInt(el.dataset.dir));
+        scheduleAutoRotate();
+      });
+    });
+    btn.scramble.addEventListener('click', scramble);
+    btn.solve.addEventListener('click', solve);
+    btn.reset.addEventListener('click', resetCube);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+      switch (e.key) {
+        case 's': case 'S': scramble(); break;
+        case 'Enter': solve(); break;
+        case 'r': case 'R': resetCube(); break;
+      }
+    });
+
+    function onResize() {
+      const w = container.clientWidth, h = container.clientHeight;
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+      const c = document.getElementById('celebration-canvas');
+      c.width = w; c.height = h;
+    }
+    window.addEventListener('resize', onResize);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      updateAnimation();
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    setStatus('Ready');
+    updateUI();
+    scheduleAutoRotate();
+  </script>
+</body>
+</html>
